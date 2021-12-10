@@ -16,8 +16,10 @@ export abstract class PageParser {
   protected abstract getCSSSelectors(): CssSelectorRegistry
 
   public async parse(req: Request, columnsPrefix = ''): Promise<Object> {
+    const url = this.getURL(req)
+
     // Get profile document
-    const { data } = await axios.get(this.getURL(req)).catch((err: any) => {
+    const { data } = await axios.get(url).catch((err: any) => {
       throw new Error(err.response.status)
     })
     const dom = parseHTML(data)
@@ -25,37 +27,40 @@ export abstract class PageParser {
 
     // Get classJob document
     const classJobDataAll = await axios
-      .get(`${this.getURL(req)}/class_job`)
+      .get(`${url}/class_job`)
       .catch((err: any) => {
+        console.log(err.response)
         throw new Error(err.response.status)
       })
+
     const classJobData = classJobDataAll.data
     const classJobDom = parseHTML(classJobData)
     let classJobDocument = classJobDom.window.document
 
     // Get achievements document
     const achievementsDataAll = await axios
-      .get(`${this.getURL(req)}/achievement/?order=2`)
+      .get(`${url}/achievement/?order=2`)
       .catch((err: any) => {
-        throw new Error(err.response.status)
+        // throw new Error(err.response.status)
       })
-    const achievementsData = achievementsDataAll.data
-    const achievementsDom = parseHTML(achievementsData)
-    let achievementsDocument = achievementsDom.window.document
+
+    const achievementsData = achievementsDataAll?.data
+    const achievementsDom = achievementsDataAll
+      ? parseHTML(achievementsData)
+      : undefined
+    let achievementsDocument = achievementsDom?.window.document
 
     // Get mounts document
-    const mountsDataAll = await axios
-      .get(`${this.getURL(req)}/mount`)
-      .catch((err: any) => {
-        throw new Error(err.response.status)
-      })
+    const mountsDataAll = await axios.get(`${url}/mount`).catch((err: any) => {
+      throw new Error(err.response.status)
+    })
     const mountsData = mountsDataAll.data
     const mountsDom = parseHTML(mountsData)
     let mountsDocument = mountsDom.window.document
 
     // Get minions document
     const minionsDataAll = await axios
-      .get(`${this.getURL(req)}/minion`)
+      .get(`${url}/minion`)
       .catch((err: any) => {
         throw new Error(err.response.status)
       })
@@ -140,7 +145,15 @@ export abstract class PageParser {
       ) {
         correctDocument = classJobDocument
       } else if (['started', 'ap', 'amount_achievements'].includes(column)) {
-        correctDocument = achievementsDocument
+        if (achievementsDocument) correctDocument = achievementsDocument
+        else {
+          return {
+            ...acc,
+            started: 'Private',
+            ap: 'Private',
+            amount_achievements: 'Private'
+          }
+        }
       } else if (column === 'amount_mounts') {
         correctDocument = mountsDocument
       } else if (column === 'amount_minions') {
