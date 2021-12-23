@@ -72,9 +72,8 @@ app.get('/character/:characterId', async (req, res) => {
 
 app.get('/lodestone/topics', async (req, res) => {
   res.set('Access-Control-Allow-Origin', '*')
-  if ((req.query['columns'] as string)?.indexOf('Bio') > -1) {
-    res.set('Cache-Control', 'max-age=3600')
-  }
+  res.set('Cache-Control', 'max-age=0')
+
   if (req.method === 'OPTIONS') {
     return res.sendStatus(200)
   }
@@ -105,9 +104,8 @@ app.get('/lodestone/topics', async (req, res) => {
 
 app.get('/lodestone/notices', async (req, res) => {
   res.set('Access-Control-Allow-Origin', '*')
-  if ((req.query['columns'] as string)?.indexOf('Bio') > -1) {
-    res.set('Cache-Control', 'max-age=3600')
-  }
+  res.set('Cache-Control', 'max-age=0')
+
   if (req.method === 'OPTIONS') {
     return res.sendStatus(200)
   }
@@ -148,9 +146,8 @@ app.get('/lodestone/notices', async (req, res) => {
 
 app.get('/lodestone/maintenance', async (req, res) => {
   res.set('Access-Control-Allow-Origin', '*')
-  if ((req.query['columns'] as string)?.indexOf('Bio') > -1) {
-    res.set('Cache-Control', 'max-age=3600')
-  }
+  res.set('Cache-Control', 'max-age=0')
+
   if (req.method === 'OPTIONS') {
     return res.sendStatus(200)
   }
@@ -163,12 +160,13 @@ app.get('/lodestone/maintenance', async (req, res) => {
     }
 
     for (var key in parsed.Maintenances)
-      if (parsed.Maintenances[key].link)
+      if (parsed.Maintenances[key]?.link)
         parsed.Maintenances[key].link =
           'https://eu.finalfantasyxiv.com' + parsed.Maintenances[key].link
 
     const resArray = []
-    for (var key in parsed.Maintenances) resArray.push(parsed.Maintenances[key])
+    for (var key in parsed.Maintenances)
+      if (parsed.Maintenances[key]) resArray.push(parsed.Maintenances[key])
 
     parsed.Maintenances = resArray
 
@@ -176,10 +174,10 @@ app.get('/lodestone/maintenance', async (req, res) => {
       const details = await maintenanceDetailsParser.parse(
         req,
         '',
-        parsed.Maintenances[key].link
+        parsed.Maintenances[key]?.link
       )
 
-      parsed.Maintenances[key].details = details
+      if (parsed.Maintenances[key]) parsed.Maintenances[key].details = details
     }
 
     return res.status(200).send(parsed)
@@ -191,9 +189,8 @@ app.get('/lodestone/maintenance', async (req, res) => {
 
 app.get('/lodestone/updates', async (req, res) => {
   res.set('Access-Control-Allow-Origin', '*')
-  if ((req.query['columns'] as string)?.indexOf('Bio') > -1) {
-    res.set('Cache-Control', 'max-age=3600')
-  }
+  res.set('Cache-Control', 'max-age=0')
+
   if (req.method === 'OPTIONS') {
     return res.sendStatus(200)
   }
@@ -234,9 +231,8 @@ app.get('/lodestone/updates', async (req, res) => {
 
 app.get('/lodestone/status', async (req, res) => {
   res.set('Access-Control-Allow-Origin', '*')
-  if ((req.query['columns'] as string)?.indexOf('Bio') > -1) {
-    res.set('Cache-Control', 'max-age=3600')
-  }
+  res.set('Cache-Control', 'max-age=0')
+
   if (req.method === 'OPTIONS') {
     return res.sendStatus(200)
   }
