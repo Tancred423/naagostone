@@ -25,7 +25,7 @@
   "SERVER": {
     "WORLD_DC": {
       "selector": "p.frame__chara__world:last-of-type",
-      "regex": "(?P<world>\\w*)\\s+\\((?P<dc>\\w*)\\)"
+      "regex": "(?P<world>\\w*)\\s+\\[(?P<dc>\\w*)\\]"
     }
   },
   "NAMEDAY": {

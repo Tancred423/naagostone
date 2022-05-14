@@ -111,9 +111,13 @@ app.get('/lodestone/notices', async (req, res) => {
   }
   try {
     const notices = await noticesParser.parse(req)
+    const noticesFiltered = Object.fromEntries(
+      Object.entries(notices).filter(([_, v]) => v !== null)
+    )
+
     const parsed: any = {
       Notices: {
-        ...notices
+        ...noticesFiltered
       }
     }
 
