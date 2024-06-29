@@ -62,6 +62,7 @@ app.get('/character/:characterId', async (req, res) => {
     }
 
     parsed = fixNameColorIfOnlySecondDyeIsBeingUsed(parsed)
+    parsed = countDyeSlots(parsed)
     parsed.Character.item_level = ItemLevel.getAverageItemLevel(parsed)
 
     return res.status(200).send(parsed)
@@ -130,6 +131,70 @@ function fixNameColorIfOnlySecondDyeIsBeingUsed(parsed: any) {
   if (!parsed.Character.ring2?.color_code && parsed.Character.ring2?.color_code2) {
     parsed.Character.ring2.color_name2 = parsed.Character.ring2.color_name
     delete parsed.Character.ring2.color_name
+  }
+
+  return parsed
+}
+
+function countDyeSlots(parsed: any) {
+  if (parsed.Character.mainhand?.amount_dye_slots) {
+    parsed.Character.mainhand.amount_dye_slots
+      = (parsed.Character.mainhand.amount_dye_slots.split('<img')[0].match(/staining/g) || []).length
+  }
+
+  if (parsed.Character.offhand?.amount_dye_slots) {
+    parsed.Character.offhand.amount_dye_slots
+      = (parsed.Character.offhand.amount_dye_slots.split('<img')[0].match(/staining/g) || []).length
+  }
+
+  if (parsed.Character.head.amount_dye_slots) {
+    parsed.Character.head.amount_dye_slots
+      = (parsed.Character.head.amount_dye_slots.split('<img')[0].match(/staining/g) || []).length
+  }
+
+  if (parsed.Character.body.amount_dye_slots) {
+    parsed.Character.body.amount_dye_slots
+      = (parsed.Character.body.amount_dye_slots.split('<img')[0].match(/staining/g) || []).length
+  }
+
+  if (parsed.Character.hands.amount_dye_slots) {
+    parsed.Character.hands.amount_dye_slots
+      = (parsed.Character.hands.amount_dye_slots.split('<img')[0].match(/staining/g) || []).length
+  }
+
+  if (parsed.Character.legs.amount_dye_slots) {
+    parsed.Character.legs.amount_dye_slots
+      = (parsed.Character.legs.amount_dye_slots.split('<img')[0].match(/staining/g) || []).length
+  }
+
+  if (parsed.Character.feet.amount_dye_slots) {
+    parsed.Character.feet.amount_dye_slots
+      = (parsed.Character.feet.amount_dye_slots.split('<img')[0].match(/staining/g) || []).length
+  }
+
+  if (parsed.Character.earrings.amount_dye_slots) {
+    parsed.Character.earrings.amount_dye_slots
+      = (parsed.Character.earrings.amount_dye_slots.split('<img')[0].match(/staining/g) || []).length
+  }
+
+  if (parsed.Character.necklace.amount_dye_slots) {
+    parsed.Character.necklace.amount_dye_slots
+      = (parsed.Character.necklace.amount_dye_slots.split('<img')[0].match(/staining/g) || []).length
+  }
+
+  if (parsed.Character.bracelets.amount_dye_slots) {
+    parsed.Character.bracelets.amount_dye_slots
+      = (parsed.Character.bracelets.amount_dye_slots.split('<img')[0].match(/staining/g) || []).length
+  }
+
+  if (parsed.Character.ring1.amount_dye_slots) {
+    parsed.Character.ring1.amount_dye_slots
+      = (parsed.Character.ring1.amount_dye_slots.split('<img')[0].match(/staining/g) || []).length
+  }
+
+  if (parsed.Character.ring2.amount_dye_slots) {
+    parsed.Character.ring2.amount_dye_slots
+      = (parsed.Character.ring2.amount_dye_slots.split('<img')[0].match(/staining/g) || []).length
   }
 
   return parsed
