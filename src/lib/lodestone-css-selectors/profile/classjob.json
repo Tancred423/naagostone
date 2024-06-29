@@ -231,6 +231,22 @@
       "regex": "(?P<CurrentEXP>\\S+) \\/ (?P<MaxEXP>\\S+)"
     }
   },
+  "VIPER": {
+    "ICON": {
+      "selector": "div.clearfix:nth-child(3) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(6) > i:nth-child(1) > img:nth-child(1)",
+      "attribute": "src"
+    },
+    "LEVEL": {
+      "selector": "div.clearfix:nth-child(3) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(6) > div:nth-child(2)"
+    },
+    "UNLOCKSTATE": {
+      "selector": "div.clearfix:nth-child(3) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(6) > div:nth-child(3)"
+    },
+    "EXP": {
+      "selector": "div.clearfix:nth-child(3) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(6) > div:nth-child(4)",
+      "regex": "(?P<CurrentEXP>\\S+) \\/ (?P<MaxEXP>\\S+)"
+    }
+  },
   "BARD": {
     "ICON": {
       "selector": "div.clearfix:nth-child(3) > div:nth-child(2) > ul:nth-child(2) > li:nth-child(1) > i:nth-child(1) > img:nth-child(1)",
@@ -327,7 +343,7 @@
       "regex": "(?P<CurrentEXP>\\S+) \\/ (?P<MaxEXP>\\S+)"
     }
   },
-  "BLUEMAGE": {
+  "PICTOMANCER": {
     "ICON": {
       "selector": "ul.character__job:nth-child(4) > li:nth-child(4) > i:nth-child(1) > img:nth-child(1)",
       "attribute": "src"
@@ -340,6 +356,22 @@
     },
     "EXP": {
       "selector": "ul.character__job:nth-child(4) > li:nth-child(4) > div:nth-child(4)",
+      "regex": "(?P<CurrentEXP>\\S+) \\/ (?P<MaxEXP>\\S+)"
+    }
+  },
+  "BLUEMAGE": {
+    "ICON": {
+      "selector": "ul.character__job:nth-child(4) > li:nth-child(5) > i:nth-child(1) > img:nth-child(1)",
+      "attribute": "src"
+    },
+    "LEVEL": {
+      "selector": "ul.character__job:nth-child(4) > li:nth-child(5) > div:nth-child(2)"
+    },
+    "UNLOCKSTATE": {
+      "selector": "ul.character__job:nth-child(4) > li:nth-child(5) > div:nth-child(3)"
+    },
+    "EXP": {
+      "selector": "ul.character__job:nth-child(4) > li:nth-child(5) > div:nth-child(4)",
       "regex": "(?P<CurrentEXP>\\S+) \\/ (?P<MaxEXP>\\S+)"
     }
   },

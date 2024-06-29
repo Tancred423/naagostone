@@ -133,7 +133,9 @@ export abstract class PageParser {
           'botanist',
           'fisher',
           'sage',
-          'reaper'
+          'reaper',
+          'pictomancer',
+          'viper',
         ].includes(column)
       ) {
         if (classJobDocument) correctDocument = classJobDocument

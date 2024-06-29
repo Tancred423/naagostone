@@ -54,13 +54,14 @@ app.get('/character/:characterId', async (req, res) => {
   }
   try {
     const character = await characterParser.parse(req, 'Character.')
-    const parsed: any = {
+    let parsed: any = {
       Character: {
         ID: +req.params.characterId,
         ...character,
       },
     }
 
+    parsed = fixNameColorIfOnlySecondDyeIsBeingUsed(parsed)
     parsed.Character.item_level = ItemLevel.getAverageItemLevel(parsed)
 
     return res.status(200).send(parsed)
@@ -69,6 +70,70 @@ app.get('/character/:characterId', async (req, res) => {
     else return res.status(500).send(err)
   }
 })
+
+function fixNameColorIfOnlySecondDyeIsBeingUsed(parsed: any) {
+  if (!parsed.Character.mainhand?.color_code && parsed.Character.mainhand?.color_code2) {
+    parsed.Character.mainhand.color_name2 = parsed.Character.mainhand.color_name
+    delete parsed.Character.mainhand.color_name
+  }
+
+  if (!parsed.Character.offhand?.color_code && parsed.Character.offhand?.color_code2) {
+    parsed.Character.offhand.color_name2 = parsed.Character.offhand.color_name
+    delete parsed.Character.offhand.color_name
+  }
+
+  if (!parsed.Character.head?.color_code && parsed.Character.head?.color_code2) {
+    parsed.Character.head.color_name2 = parsed.Character.head.color_name
+    delete parsed.Character.head.color_name
+  }
+
+  if (!parsed.Character.body?.color_code && parsed.Character.body?.color_code2) {
+    parsed.Character.body.color_name2 = parsed.Character.body.color_name
+    delete parsed.Character.body.color_name
+  }
+
+  if (!parsed.Character.hands?.color_code && parsed.Character.hands?.color_code2) {
+    parsed.Character.hands.color_name2 = parsed.Character.hands.color_name
+    delete parsed.Character.hands.color_name
+  }
+
+  if (!parsed.Character.legs?.color_code && parsed.Character.legs?.color_code2) {
+    parsed.Character.legs.color_name2 = parsed.Character.legs.color_name
+    delete parsed.Character.legs.color_name
+  }
+
+  if (!parsed.Character.feet?.color_code && parsed.Character.feet?.color_code2) {
+    parsed.Character.feet.color_name2 = parsed.Character.feet.color_name
+    delete parsed.Character.feet.color_name
+  }
+
+  if (!parsed.Character.earrings?.color_code && parsed.Character.earrings?.color_code2) {
+    parsed.Character.earrings.color_name2 = parsed.Character.earrings.color_name
+    delete parsed.Character.earrings.color_name
+  }
+
+  if (!parsed.Character.necklace?.color_code && parsed.Character.necklace?.color_code2) {
+    parsed.Character.necklace.color_name2 = parsed.Character.necklace.color_name
+    delete parsed.Character.necklace.color_name
+  }
+
+  if (!parsed.Character.bracelets?.color_code && parsed.Character.bracelets?.color_code2) {
+    parsed.Character.bracelets.color_name2 = parsed.Character.bracelets.color_name
+    delete parsed.Character.bracelets.color_name
+  }
+
+  if (!parsed.Character.ring1?.color_code && parsed.Character.ring1?.color_code2) {
+    parsed.Character.ring1.color_name2 = parsed.Character.ring1.color_name
+    delete parsed.Character.ring1.color_name
+  }
+
+  if (!parsed.Character.ring2?.color_code && parsed.Character.ring2?.color_code2) {
+    parsed.Character.ring2.color_name2 = parsed.Character.ring2.color_name
+    delete parsed.Character.ring2.color_name
+  }
+
+  return parsed
+}
 
 app.get('/lodestone/topics', async (req, res) => {
   res.set('Access-Control-Allow-Origin', '*')
