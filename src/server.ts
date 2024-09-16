@@ -31,8 +31,6 @@ const updatesDetailsParser = new UpdatesDetails()
 const statusParser = new Status()
 const statusDetailsParser = new StatusDetails()
 
-// a test
-
 app.get('/character/search', async (req, res) => {
   res.set('Access-Control-Allow-Origin', '*')
   if (req.method === 'OPTIONS') {
