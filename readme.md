@@ -1,7 +1,9 @@
 # Naagostone
 
-A FFXIV Lodestone crawler in TypeScript based on [lodestone-css-selectors](https://github.com/xivapi/lodestone-css-selectors). It has custom edits and support for lodestone news.
-I also include "markdown" versions of crawled texts that are ready to be used within Discord.
+A FFXIV Lodestone crawler in TypeScript based on
+[lodestone-css-selectors](https://github.com/xivapi/lodestone-css-selectors). It
+has custom edits and support for lodestone news. I also include "markdown"
+versions of crawled texts that are ready to be used within Discord.
 
 ### Building the Docker Image
 

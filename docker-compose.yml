@@ -2,9 +2,7 @@ version: "3.8"
 
 services:
   naagostone:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ghcr.io/${USERNAME_LOWERCASE:-tancred}/naagostone:latest
     container_name: naagostone-api
     ports:
       - "3001:3001"
