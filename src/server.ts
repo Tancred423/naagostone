@@ -503,13 +503,13 @@ app.get("/lodestone/topics", async (context: Context) => {
     );
 
     const parsed = {
-      Topics: {
+      topics: {
         ...topicsFiltered,
       },
     } as Record<string, Record<string, unknown>>;
 
-    for (const key in parsed.Topics) {
-      const topic = parsed.Topics[key];
+    for (const key in parsed.topics) {
+      const topic = parsed.topics[key];
       if (topic && (topic as Record<string, unknown>).link) {
         (topic as Record<string, unknown>).link =
           "https://eu.finalfantasyxiv.com" +
@@ -518,12 +518,12 @@ app.get("/lodestone/topics", async (context: Context) => {
     }
 
     const resArray = [];
-    for (const topicKey in parsed.Topics) {
-      const topic = parsed.Topics[topicKey];
+    for (const topicKey in parsed.topics) {
+      const topic = parsed.topics[topicKey];
       if (topic) resArray.push(topic);
     }
 
-    parsed.Topics = resArray as unknown as Record<string, unknown>;
+    parsed.topics = resArray as unknown as Record<string, unknown>;
 
     const withMarkdown = markdownConverter.addMarkdownFields(parsed);
     newsCache.set(cacheKey, withMarkdown);
@@ -548,34 +548,34 @@ app.get("/lodestone/notices", async (context: Context) => {
     );
 
     const parsed = {
-      Notices: {
+      notices: {
         ...noticesFiltered,
       },
     } as Record<string, unknown>;
 
-    for (const key in (parsed.Notices as Record<string, unknown>)) {
+    for (const key in (parsed.notices as Record<string, unknown>)) {
       const notice =
-        (parsed.Notices as Record<string, Record<string, unknown>>)[key];
+        (parsed.notices as Record<string, Record<string, unknown>>)[key];
       if (notice?.link) {
         notice.link = "https://eu.finalfantasyxiv.com" + notice.link;
       }
     }
 
     const resArray = [];
-    for (const noticeKey in (parsed.Notices as Record<string, unknown>)) {
-      const notice = (parsed.Notices as Record<string, unknown>)[noticeKey];
+    for (const noticeKey in (parsed.notices as Record<string, unknown>)) {
+      const notice = (parsed.notices as Record<string, unknown>)[noticeKey];
       if (notice) resArray.push(notice);
     }
 
-    parsed.Notices = resArray;
+    parsed.notices = resArray;
 
-    const detailsPromises = (parsed.Notices as Array<Record<string, unknown>>)
+    const detailsPromises = (parsed.notices as Array<Record<string, unknown>>)
       .map((notice) =>
         noticesDetailsParser.parse(context, "", notice.link as string)
       );
     const detailsResults = await Promise.all(detailsPromises);
 
-    (parsed.Notices as Array<Record<string, unknown>>).forEach(
+    (parsed.notices as Array<Record<string, unknown>>).forEach(
       (notice, index: number) => {
         Object.assign(notice, detailsResults[index]);
       },
@@ -597,17 +597,17 @@ app.get("/lodestone/maintenances", async (context: Context) => {
   try {
     const maintenances = await maintenanceParser.parse(context);
     const parsed = {
-      Maintenances: {
+      maintenances: {
         ...maintenances,
       },
     } as Record<string, unknown>;
 
     for (
       const key
-        in (parsed.Maintenances as Record<string, Record<string, unknown>>)
+        in (parsed.maintenances as Record<string, Record<string, unknown>>)
     ) {
       const maintenance =
-        (parsed.Maintenances as Record<string, Record<string, unknown>>)[key];
+        (parsed.maintenances as Record<string, Record<string, unknown>>)[key];
       if (maintenance?.link) {
         maintenance.link = "https://eu.finalfantasyxiv.com" + maintenance.link;
       }
@@ -615,17 +615,17 @@ app.get("/lodestone/maintenances", async (context: Context) => {
 
     const resArray = [];
     for (
-      const maintenanceKey in (parsed.Maintenances as Record<string, unknown>)
+      const maintenanceKey in (parsed.maintenances as Record<string, unknown>)
     ) {
       const maintenance =
-        (parsed.Maintenances as Record<string, unknown>)[maintenanceKey];
+        (parsed.maintenances as Record<string, unknown>)[maintenanceKey];
       if (maintenance) resArray.push(maintenance);
     }
 
-    parsed.Maintenances = resArray;
+    parsed.maintenances = resArray;
 
     const detailsPromises =
-      (parsed.Maintenances as Array<Record<string, unknown>>).map((
+      (parsed.maintenances as Array<Record<string, unknown>>).map((
         maintenance,
       ) =>
         maintenanceDetailsParser.parse(
@@ -636,7 +636,7 @@ app.get("/lodestone/maintenances", async (context: Context) => {
       );
     const detailsResults = await Promise.all(detailsPromises);
 
-    (parsed.Maintenances as Array<Record<string, unknown>>).forEach(
+    (parsed.maintenances as Array<Record<string, unknown>>).forEach(
       (maintenance, index: number) => {
         if (maintenance) {
           Object.assign(maintenance, detailsResults[index]);
@@ -675,36 +675,36 @@ app.get("/lodestone/updates", async (context: Context) => {
     );
 
     const parsed = {
-      Updates: {
+      updates: {
         ...updatesFiltered,
       },
     } as Record<string, unknown>;
 
     for (
-      const key in (parsed.Updates as Record<string, Record<string, unknown>>)
+      const key in (parsed.updates as Record<string, Record<string, unknown>>)
     ) {
       const update =
-        (parsed.Updates as Record<string, Record<string, unknown>>)[key];
+        (parsed.updates as Record<string, Record<string, unknown>>)[key];
       if (update?.link) {
         update.link = "https://eu.finalfantasyxiv.com" + update.link;
       }
     }
 
     const resArray: unknown[] = [];
-    for (const updateKey in (parsed.Updates as Record<string, unknown>)) {
-      const update = (parsed.Updates as Record<string, unknown>)[updateKey];
+    for (const updateKey in (parsed.updates as Record<string, unknown>)) {
+      const update = (parsed.updates as Record<string, unknown>)[updateKey];
       if (update) resArray.push(update);
     }
 
-    parsed.Updates = resArray;
+    parsed.updates = resArray;
 
-    const detailsPromises = (parsed.Updates as Array<Record<string, unknown>>)
+    const detailsPromises = (parsed.updates as Array<Record<string, unknown>>)
       .map((update) =>
         updatesDetailsParser.parse(context, "", update.link as string)
       );
     const detailsResults = await Promise.all(detailsPromises);
 
-    (parsed.Updates as Array<Record<string, unknown>>).forEach(
+    (parsed.updates as Array<Record<string, unknown>>).forEach(
       (update, index: number) => {
         Object.assign(update, detailsResults[index]);
       },
@@ -730,36 +730,36 @@ app.get("/lodestone/statuses", async (context: Context) => {
     );
 
     const parsed = {
-      Status: {
+      status: {
         ...statusFiltered,
       },
     } as Record<string, unknown>;
 
     for (
-      const key in (parsed.Status as Record<string, Record<string, unknown>>)
+      const key in (parsed.status as Record<string, Record<string, unknown>>)
     ) {
       const statusItem =
-        (parsed.Status as Record<string, Record<string, unknown>>)[key];
+        (parsed.status as Record<string, Record<string, unknown>>)[key];
       if (statusItem?.link) {
         statusItem.link = "https://eu.finalfantasyxiv.com" + statusItem.link;
       }
     }
 
     const resArray: unknown[] = [];
-    for (const statusKey in (parsed.Status as Record<string, unknown>)) {
-      const statusItem = (parsed.Status as Record<string, unknown>)[statusKey];
+    for (const statusKey in (parsed.status as Record<string, unknown>)) {
+      const statusItem = (parsed.status as Record<string, unknown>)[statusKey];
       if (statusItem) resArray.push(statusItem);
     }
 
-    parsed.Status = resArray;
+    parsed.status = resArray;
 
-    const detailsPromises = (parsed.Status as Array<Record<string, unknown>>)
+    const detailsPromises = (parsed.status as Array<Record<string, unknown>>)
       .map((statusItem) =>
         statusDetailsParser.parse(context, "", statusItem.link as string)
       );
     const detailsResults = await Promise.all(detailsPromises);
 
-    (parsed.Status as Array<Record<string, unknown>>).forEach(
+    (parsed.status as Array<Record<string, unknown>>).forEach(
       (statusItem, index: number) => {
         Object.assign(statusItem, detailsResults[index]);
       },
