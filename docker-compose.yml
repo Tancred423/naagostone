@@ -1,8 +1,6 @@
-version: "3.8"
-
 services:
   naagostone:
-    image: ghcr.io/${USERNAME_LOWERCASE:-tancred}/naagostone:latest
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/naagostone:latest
     container_name: naagostone-api
     ports:
       - "3001:3001"
