@@ -1,0 +1,554 @@
+{
+  "BOZJA": {
+    "LEVEL": {
+      "selector": "div.character__job__list:nth-child(7) > div:nth-child(2)"
+    },
+    "METTLE": {
+      "selector": "div.character__job__list:nth-child(7) > div:nth-child(4)",
+      "regex": "(?P<mettle>\\S+) \\/"
+    },
+    "NAME": {
+      "selector": "div.character__job__list:nth-child(7) > div:nth-child(3)"
+    }
+  },
+  "EUREKA": {
+    "EXP": {
+      "selector": "div.character__job__list:nth-child(9) > div:nth-child(4)",
+      "regex": "(?P<current_exp>\\S+) \\/ (?P<max_exp>\\S+)"
+    },
+    "LEVEL": {
+      "selector": "div.character__job__list:nth-child(9) > div:nth-child(2)"
+    },
+    "NAME": {
+      "selector": "div.character__job__list:nth-child(9) > div:nth-child(3)"
+    }
+  },
+  "PALADIN": {
+    "ICON": {
+      "selector": ".character__content > div:nth-child(2) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(1) > i:nth-child(1) > img:nth-child(1)",
+      "attribute": "src"
+    },
+    "LEVEL": {
+      "selector": ".character__content > div:nth-child(2) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(1) > div:nth-child(2)"
+    },
+    "UNLOCKSTATE": {
+      "selector": ".character__content > div:nth-child(2) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(1) > div:nth-child(3)"
+    },
+    "EXP": {
+      "selector": ".character__content > div:nth-child(2) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(1) > div:nth-child(4)",
+      "regex": "(?P<current_exp>\\S+) \\/ (?P<max_exp>\\S+)"
+    }
+  },
+  "WARRIOR": {
+    "ICON": {
+      "selector": ".character__content > div:nth-child(2) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(2) > i:nth-child(1) > img:nth-child(1)",
+      "attribute": "src"
+    },
+    "LEVEL": {
+      "selector": ".character__content > div:nth-child(2) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(2) > div:nth-child(2)"
+    },
+    "UNLOCKSTATE": {
+      "selector": ".character__content > div:nth-child(2) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(2) > div:nth-child(3)"
+    },
+    "EXP": {
+      "selector": ".character__content > div:nth-child(2) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(2) > div:nth-child(4)",
+      "regex": "(?P<current_exp>\\S+) \\/ (?P<max_exp>\\S+)"
+    }
+  },
+  "DARKKNIGHT": {
+    "ICON": {
+      "selector": ".character__content > div:nth-child(2) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(3) > i:nth-child(1) > img:nth-child(1)",
+      "attribute": "src"
+    },
+    "LEVEL": {
+      "selector": ".character__content > div:nth-child(2) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(3) > div:nth-child(2)"
+    },
+    "UNLOCKSTATE": {
+      "selector": ".character__content > div:nth-child(2) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(3) > div:nth-child(3)"
+    },
+    "EXP": {
+      "selector": ".character__content > div:nth-child(2) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(3) > div:nth-child(4)",
+      "regex": "(?P<current_exp>\\S+) \\/ (?P<max_exp>\\S+)"
+    }
+  },
+  "GUNBREAKER": {
+    "ICON": {
+      "selector": ".character__content > div:nth-child(2) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(4) > i:nth-child(1) > img:nth-child(1)",
+      "attribute": "src"
+    },
+    "LEVEL": {
+      "selector": ".character__content > div:nth-child(2) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(4) > div:nth-child(2)"
+    },
+    "UNLOCKSTATE": {
+      "selector": ".character__content > div:nth-child(2) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(4) > div:nth-child(3)"
+    },
+    "EXP": {
+      "selector": ".character__content > div:nth-child(2) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(4) > div:nth-child(4)",
+      "regex": "(?P<current_exp>\\S+) \\/ (?P<max_exp>\\S+)"
+    }
+  },
+  "WHITEMAGE": {
+    "ICON": {
+      "selector": ".character__content > div:nth-child(2) > div:nth-child(2) > ul:nth-child(2) > li:nth-child(1) > i:nth-child(1) > img:nth-child(1)",
+      "attribute": "src"
+    },
+    "LEVEL": {
+      "selector": ".character__content > div:nth-child(2) > div:nth-child(2) > ul:nth-child(2) > li:nth-child(1) > div:nth-child(2)"
+    },
+    "UNLOCKSTATE": {
+      "selector": ".character__content > div:nth-child(2) > div:nth-child(2) > ul:nth-child(2) > li:nth-child(1) > div:nth-child(3)"
+    },
+    "EXP": {
+      "selector": ".character__content > div:nth-child(2) > div:nth-child(2) > ul:nth-child(2) > li:nth-child(1) > div:nth-child(4)",
+      "regex": "(?P<current_exp>\\S+) \\/ (?P<max_exp>\\S+)"
+    }
+  },
+  "SCHOLAR": {
+    "ICON": {
+      "selector": ".character__content > div:nth-child(2) > div:nth-child(2) > ul:nth-child(2) > li:nth-child(2) > i:nth-child(1) > img:nth-child(1)",
+      "attribute": "src"
+    },
+    "LEVEL": {
+      "selector": ".character__content > div:nth-child(2) > div:nth-child(2) > ul:nth-child(2) > li:nth-child(2) > div:nth-child(2)"
+    },
+    "UNLOCKSTATE": {
+      "selector": ".character__content > div:nth-child(2) > div:nth-child(2) > ul:nth-child(2) > li:nth-child(2) > div:nth-child(3)"
+    },
+    "EXP": {
+      "selector": ".character__content > div:nth-child(2) > div:nth-child(2) > ul:nth-child(2) > li:nth-child(2) > div:nth-child(4)",
+      "regex": "(?P<current_exp>\\S+) \\/ (?P<max_exp>\\S+)"
+    }
+  },
+  "ASTROLOGIAN": {
+    "ICON": {
+      "selector": ".character__content > div:nth-child(2) > div:nth-child(2) > ul:nth-child(2) > li:nth-child(3) > i:nth-child(1) > img:nth-child(1)",
+      "attribute": "src"
+    },
+    "LEVEL": {
+      "selector": ".character__content > div:nth-child(2) > div:nth-child(2) > ul:nth-child(2) > li:nth-child(3) > div:nth-child(2)"
+    },
+    "UNLOCKSTATE": {
+      "selector": ".character__content > div:nth-child(2) > div:nth-child(2) > ul:nth-child(2) > li:nth-child(3) > div:nth-child(3)"
+    },
+    "EXP": {
+      "selector": ".character__content > div:nth-child(2) > div:nth-child(2) > ul:nth-child(2) > li:nth-child(3) > div:nth-child(4)",
+      "regex": "(?P<current_exp>\\S+) \\/ (?P<max_exp>\\S+)"
+    }
+  },
+  "SAGE": {
+    "ICON": {
+      "selector": ".character__content > div:nth-child(2) > div:nth-child(2) > ul:nth-child(2) > li:nth-child(4) > i:nth-child(1) > img:nth-child(1)",
+      "attribute": "src"
+    },
+    "LEVEL": {
+      "selector": ".character__content > div:nth-child(2) > div:nth-child(2) > ul:nth-child(2) > li:nth-child(4) > div:nth-child(2)"
+    },
+    "UNLOCKSTATE": {
+      "selector": ".character__content > div:nth-child(2) > div:nth-child(2) > ul:nth-child(2) > li:nth-child(4) > div:nth-child(3)"
+    },
+    "EXP": {
+      "selector": ".character__content > div:nth-child(2) > div:nth-child(2) > ul:nth-child(2) > li:nth-child(4) > div:nth-child(4)",
+      "regex": "(?P<current_exp>\\S+) \\/ (?P<max_exp>\\S+)"
+    }
+  },
+  "MONK": {
+    "ICON": {
+      "selector": "div.clearfix:nth-child(3) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(1) > i:nth-child(1) > img:nth-child(1)",
+      "attribute": "src"
+    },
+    "LEVEL": {
+      "selector": "div.clearfix:nth-child(3) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(1) > div:nth-child(2)"
+    },
+    "UNLOCKSTATE": {
+      "selector": "div.clearfix:nth-child(3) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(1) > div:nth-child(3)"
+    },
+    "EXP": {
+      "selector": "div.clearfix:nth-child(3) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(1) > div:nth-child(4)",
+      "regex": "(?P<current_exp>\\S+) \\/ (?P<max_exp>\\S+)"
+    }
+  },
+  "DRAGOON": {
+    "ICON": {
+      "selector": "div.clearfix:nth-child(3) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(2) > i:nth-child(1) > img:nth-child(1)",
+      "attribute": "src"
+    },
+    "LEVEL": {
+      "selector": "div.clearfix:nth-child(3) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(2) > div:nth-child(2)"
+    },
+    "UNLOCKSTATE": {
+      "selector": "div.clearfix:nth-child(3) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(2) > div:nth-child(3)"
+    },
+    "EXP": {
+      "selector": "div.clearfix:nth-child(3) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(2) > div:nth-child(4)",
+      "regex": "(?P<current_exp>\\S+) \\/ (?P<max_exp>\\S+)"
+    }
+  },
+  "NINJA": {
+    "ICON": {
+      "selector": "div.clearfix:nth-child(3) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(3) > i:nth-child(1) > img:nth-child(1)",
+      "attribute": "src"
+    },
+    "LEVEL": {
+      "selector": "div.clearfix:nth-child(3) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(3) > div:nth-child(2)"
+    },
+    "UNLOCKSTATE": {
+      "selector": "div.clearfix:nth-child(3) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(3) > div:nth-child(3)"
+    },
+    "EXP": {
+      "selector": "div.clearfix:nth-child(3) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(3) > div:nth-child(4)",
+      "regex": "(?P<current_exp>\\S+) \\/ (?P<max_exp>\\S+)"
+    }
+  },
+  "SAMURAI": {
+    "ICON": {
+      "selector": "div.clearfix:nth-child(3) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(4) > i:nth-child(1) > img:nth-child(1)",
+      "attribute": "src"
+    },
+    "LEVEL": {
+      "selector": "div.clearfix:nth-child(3) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(4) > div:nth-child(2)"
+    },
+    "UNLOCKSTATE": {
+      "selector": "div.clearfix:nth-child(3) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(4) > div:nth-child(3)"
+    },
+    "EXP": {
+      "selector": "div.clearfix:nth-child(3) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(4) > div:nth-child(4)",
+      "regex": "(?P<current_exp>\\S+) \\/ (?P<max_exp>\\S+)"
+    }
+  },
+  "REAPER": {
+    "ICON": {
+      "selector": "div.clearfix:nth-child(3) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(5) > i:nth-child(1) > img:nth-child(1)",
+      "attribute": "src"
+    },
+    "LEVEL": {
+      "selector": "div.clearfix:nth-child(3) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(5) > div:nth-child(2)"
+    },
+    "UNLOCKSTATE": {
+      "selector": "div.clearfix:nth-child(3) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(5) > div:nth-child(3)"
+    },
+    "EXP": {
+      "selector": "div.clearfix:nth-child(3) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(5) > div:nth-child(4)",
+      "regex": "(?P<current_exp>\\S+) \\/ (?P<max_exp>\\S+)"
+    }
+  },
+  "VIPER": {
+    "ICON": {
+      "selector": "div.clearfix:nth-child(3) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(6) > i:nth-child(1) > img:nth-child(1)",
+      "attribute": "src"
+    },
+    "LEVEL": {
+      "selector": "div.clearfix:nth-child(3) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(6) > div:nth-child(2)"
+    },
+    "UNLOCKSTATE": {
+      "selector": "div.clearfix:nth-child(3) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(6) > div:nth-child(3)"
+    },
+    "EXP": {
+      "selector": "div.clearfix:nth-child(3) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(6) > div:nth-child(4)",
+      "regex": "(?P<current_exp>\\S+) \\/ (?P<max_exp>\\S+)"
+    }
+  },
+  "BARD": {
+    "ICON": {
+      "selector": "div.clearfix:nth-child(3) > div:nth-child(2) > ul:nth-child(2) > li:nth-child(1) > i:nth-child(1) > img:nth-child(1)",
+      "attribute": "src"
+    },
+    "LEVEL": {
+      "selector": "div.clearfix:nth-child(3) > div:nth-child(2) > ul:nth-child(2) > li:nth-child(1) > div:nth-child(2)"
+    },
+    "UNLOCKSTATE": {
+      "selector": "div.clearfix:nth-child(3) > div:nth-child(2) > ul:nth-child(2) > li:nth-child(1) > div:nth-child(3)"
+    },
+    "EXP": {
+      "selector": "div.clearfix:nth-child(3) > div:nth-child(2) > ul:nth-child(2) > li:nth-child(1) > div:nth-child(4)",
+      "regex": "(?P<current_exp>\\S+) \\/ (?P<max_exp>\\S+)"
+    }
+  },
+  "MACHINIST": {
+    "ICON": {
+      "selector": "div.clearfix:nth-child(3) > div:nth-child(2) > ul:nth-child(2) > li:nth-child(2) > i:nth-child(1) > img:nth-child(1)",
+      "attribute": "src"
+    },
+    "LEVEL": {
+      "selector": "div.clearfix:nth-child(3) > div:nth-child(2) > ul:nth-child(2) > li:nth-child(2) > div:nth-child(2)"
+    },
+    "UNLOCKSTATE": {
+      "selector": "div.clearfix:nth-child(3) > div:nth-child(2) > ul:nth-child(2) > li:nth-child(2) > div:nth-child(3)"
+    },
+    "EXP": {
+      "selector": "div.clearfix:nth-child(3) > div:nth-child(2) > ul:nth-child(2) > li:nth-child(2) > div:nth-child(4)",
+      "regex": "(?P<current_exp>\\S+) \\/ (?P<max_exp>\\S+)"
+    }
+  },
+  "DANCER": {
+    "ICON": {
+      "selector": "div.clearfix:nth-child(3) > div:nth-child(2) > ul:nth-child(2) > li:nth-child(3) > i:nth-child(1) > img:nth-child(1)",
+      "attribute": "src"
+    },
+    "LEVEL": {
+      "selector": "div.clearfix:nth-child(3) > div:nth-child(2) > ul:nth-child(2) > li:nth-child(3) > div:nth-child(2)"
+    },
+    "UNLOCKSTATE": {
+      "selector": "div.clearfix:nth-child(3) > div:nth-child(2) > ul:nth-child(2) > li:nth-child(3) > div:nth-child(3)"
+    },
+    "EXP": {
+      "selector": "div.clearfix:nth-child(3) > div:nth-child(2) > ul:nth-child(2) > li:nth-child(3) > div:nth-child(4)",
+      "regex": "(?P<current_exp>\\S+) \\/ (?P<max_exp>\\S+)"
+    }
+  },
+  "BLACKMAGE": {
+    "ICON": {
+      "selector": "ul.character__job:nth-child(4) > li:nth-child(1) > i:nth-child(1) > img:nth-child(1)",
+      "attribute": "src"
+    },
+    "LEVEL": {
+      "selector": "ul.character__job:nth-child(4) > li:nth-child(1) > div:nth-child(2)"
+    },
+    "UNLOCKSTATE": {
+      "selector": "ul.character__job:nth-child(4) > li:nth-child(1) > div:nth-child(3)"
+    },
+    "EXP": {
+      "selector": "ul.character__job:nth-child(4) > li:nth-child(1) > div:nth-child(4)",
+      "regex": "(?P<current_exp>\\S+) \\/ (?P<max_exp>\\S+)"
+    }
+  },
+  "SUMMONER": {
+    "ICON": {
+      "selector": "ul.character__job:nth-child(4) > li:nth-child(2) > i:nth-child(1) > img:nth-child(1)",
+      "attribute": "src"
+    },
+    "LEVEL": {
+      "selector": "ul.character__job:nth-child(4) > li:nth-child(2) > div:nth-child(2)"
+    },
+    "UNLOCKSTATE": {
+      "selector": "ul.character__job:nth-child(4) > li:nth-child(2) > div:nth-child(3)"
+    },
+    "EXP": {
+      "selector": "ul.character__job:nth-child(4) > li:nth-child(2) > div:nth-child(4)",
+      "regex": "(?P<current_exp>\\S+) \\/ (?P<max_exp>\\S+)"
+    }
+  },
+  "REDMAGE": {
+    "ICON": {
+      "selector": "ul.character__job:nth-child(4) > li:nth-child(3) > i:nth-child(1) > img:nth-child(1)",
+      "attribute": "src"
+    },
+    "LEVEL": {
+      "selector": "ul.character__job:nth-child(4) > li:nth-child(3) > div:nth-child(2)"
+    },
+    "UNLOCKSTATE": {
+      "selector": "ul.character__job:nth-child(4) > li:nth-child(3) > div:nth-child(3)"
+    },
+    "EXP": {
+      "selector": "ul.character__job:nth-child(4) > li:nth-child(3) > div:nth-child(4)",
+      "regex": "(?P<current_exp>\\S+) \\/ (?P<max_exp>\\S+)"
+    }
+  },
+  "PICTOMANCER": {
+    "ICON": {
+      "selector": "ul.character__job:nth-child(4) > li:nth-child(4) > i:nth-child(1) > img:nth-child(1)",
+      "attribute": "src"
+    },
+    "LEVEL": {
+      "selector": "ul.character__job:nth-child(4) > li:nth-child(4) > div:nth-child(2)"
+    },
+    "UNLOCKSTATE": {
+      "selector": "ul.character__job:nth-child(4) > li:nth-child(4) > div:nth-child(3)"
+    },
+    "EXP": {
+      "selector": "ul.character__job:nth-child(4) > li:nth-child(4) > div:nth-child(4)",
+      "regex": "(?P<current_exp>\\S+) \\/ (?P<max_exp>\\S+)"
+    }
+  },
+  "BLUEMAGE": {
+    "ICON": {
+      "selector": "ul.character__job:nth-child(4) > li:nth-child(5) > i:nth-child(1) > img:nth-child(1)",
+      "attribute": "src"
+    },
+    "LEVEL": {
+      "selector": "ul.character__job:nth-child(4) > li:nth-child(5) > div:nth-child(2)"
+    },
+    "UNLOCKSTATE": {
+      "selector": "ul.character__job:nth-child(4) > li:nth-child(5) > div:nth-child(3)"
+    },
+    "EXP": {
+      "selector": "ul.character__job:nth-child(4) > li:nth-child(5) > div:nth-child(4)",
+      "regex": "(?P<current_exp>\\S+) \\/ (?P<max_exp>\\S+)"
+    }
+  },
+  "CARPENTER": {
+    "ICON": {
+      "selector": "div.clearfix:nth-child(5) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(1) > i:nth-child(1) > img:nth-child(1)",
+      "attribute": "src"
+    },
+    "LEVEL": {
+      "selector": "div.clearfix:nth-child(5) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(1) > div:nth-child(2)"
+    },
+    "UNLOCKSTATE": {
+      "selector": "div.clearfix:nth-child(5) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(1) > div:nth-child(3)"
+    },
+    "EXP": {
+      "selector": "div.clearfix:nth-child(5) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(1) > div:nth-child(4)",
+      "regex": "(?P<current_exp>\\S+) \\/ (?P<max_exp>\\S+)"
+    }
+  },
+  "BLACKSMITH": {
+    "ICON": {
+      "selector": "div.clearfix:nth-child(5) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(2) > i:nth-child(1) > img:nth-child(1)",
+      "attribute": "src"
+    },
+    "LEVEL": {
+      "selector": "div.clearfix:nth-child(5) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(2) > div:nth-child(2)"
+    },
+    "UNLOCKSTATE": {
+      "selector": "div.clearfix:nth-child(5) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(2) > div:nth-child(3)"
+    },
+    "EXP": {
+      "selector": "div.clearfix:nth-child(5) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(2) > div:nth-child(4)",
+      "regex": "(?P<current_exp>\\S+) \\/ (?P<max_exp>\\S+)"
+    }
+  },
+  "ARMORER": {
+    "ICON": {
+      "selector": "div.clearfix:nth-child(5) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(3) > i:nth-child(1) > img:nth-child(1)",
+      "attribute": "src"
+    },
+    "LEVEL": {
+      "selector": "div.clearfix:nth-child(5) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(3) > div:nth-child(2)"
+    },
+    "UNLOCKSTATE": {
+      "selector": "div.clearfix:nth-child(5) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(3) > div:nth-child(3)"
+    },
+    "EXP": {
+      "selector": "div.clearfix:nth-child(5) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(3) > div:nth-child(4)",
+      "regex": "(?P<current_exp>\\S+) \\/ (?P<max_exp>\\S+)"
+    }
+  },
+  "GOLDSMITH": {
+    "ICON": {
+      "selector": "div.clearfix:nth-child(5) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(4) > i:nth-child(1) > img:nth-child(1)",
+      "attribute": "src"
+    },
+    "LEVEL": {
+      "selector": "div.clearfix:nth-child(5) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(4) > div:nth-child(2)"
+    },
+    "UNLOCKSTATE": {
+      "selector": "div.clearfix:nth-child(5) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(4) > div:nth-child(3)"
+    },
+    "EXP": {
+      "selector": "div.clearfix:nth-child(5) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(4) > div:nth-child(4)",
+      "regex": "(?P<current_exp>\\S+) \\/ (?P<max_exp>\\S+)"
+    }
+  },
+  "LEATHERWORKER": {
+    "ICON": {
+      "selector": "div.clearfix:nth-child(5) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(5) > i:nth-child(1) > img:nth-child(1)",
+      "attribute": "src"
+    },
+    "LEVEL": {
+      "selector": "div.clearfix:nth-child(5) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(5) > div:nth-child(2)"
+    },
+    "UNLOCKSTATE": {
+      "selector": "div.clearfix:nth-child(5) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(5) > div:nth-child(3)"
+    },
+    "EXP": {
+      "selector": "div.clearfix:nth-child(5) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(5) > div:nth-child(4)",
+      "regex": "(?P<current_exp>\\S+) \\/ (?P<max_exp>\\S+)"
+    }
+  },
+  "WEAVER": {
+    "ICON": {
+      "selector": "div.clearfix:nth-child(5) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(6) > i:nth-child(1) > img:nth-child(1)",
+      "attribute": "src"
+    },
+    "LEVEL": {
+      "selector": "div.clearfix:nth-child(5) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(6) > div:nth-child(2)"
+    },
+    "UNLOCKSTATE": {
+      "selector": "div.clearfix:nth-child(5) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(6) > div:nth-child(3)"
+    },
+    "EXP": {
+      "selector": "div.clearfix:nth-child(5) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(6) > div:nth-child(4)",
+      "regex": "(?P<current_exp>\\S+) \\/ (?P<max_exp>\\S+)"
+    }
+  },
+  "ALCHEMIST": {
+    "ICON": {
+      "selector": "div.clearfix:nth-child(5) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(7) > i:nth-child(1) > img:nth-child(1)",
+      "attribute": "src"
+    },
+    "LEVEL": {
+      "selector": "div.clearfix:nth-child(5) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(7) > div:nth-child(2)"
+    },
+    "UNLOCKSTATE": {
+      "selector": "div.clearfix:nth-child(5) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(7) > div:nth-child(3)"
+    },
+    "EXP": {
+      "selector": "div.clearfix:nth-child(5) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(7) > div:nth-child(4)",
+      "regex": "(?P<current_exp>\\S+) \\/ (?P<max_exp>\\S+)"
+    }
+  },
+  "CULINARIAN": {
+    "ICON": {
+      "selector": "div.clearfix:nth-child(5) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(8) > i:nth-child(1) > img:nth-child(1)",
+      "attribute": "src"
+    },
+    "LEVEL": {
+      "selector": "div.clearfix:nth-child(5) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(8) > div:nth-child(2)"
+    },
+    "UNLOCKSTATE": {
+      "selector": "div.clearfix:nth-child(5) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(8) > div:nth-child(3)"
+    },
+    "EXP": {
+      "selector": "div.clearfix:nth-child(5) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(8) > div:nth-child(4)",
+      "regex": "(?P<current_exp>\\S+) \\/ (?P<max_exp>\\S+)"
+    }
+  },
+  "MINER": {
+    "ICON": {
+      "selector": "div.clearfix:nth-child(5) > div:nth-child(2) > ul:nth-child(2) > li:nth-child(1) > i:nth-child(1) > img:nth-child(1)",
+      "attribute": "src"
+    },
+    "LEVEL": {
+      "selector": "div.clearfix:nth-child(5) > div:nth-child(2) > ul:nth-child(2) > li:nth-child(1) > div:nth-child(2)"
+    },
+    "UNLOCKSTATE": {
+      "selector": "div.clearfix:nth-child(5) > div:nth-child(2) > ul:nth-child(2) > li:nth-child(1) > div:nth-child(3)"
+    },
+    "EXP": {
+      "selector": "div.clearfix:nth-child(5) > div:nth-child(2) > ul:nth-child(2) > li:nth-child(1) > div:nth-child(4)",
+      "regex": "(?P<current_exp>\\S+) \\/ (?P<max_exp>\\S+)"
+    }
+  },
+  "BOTANIST": {
+    "ICON": {
+      "selector": "div.clearfix:nth-child(5) > div:nth-child(2) > ul:nth-child(2) > li:nth-child(2) > i:nth-child(1) > img:nth-child(1)",
+      "attribute": "src"
+    },
+    "LEVEL": {
+      "selector": "div.clearfix:nth-child(5) > div:nth-child(2) > ul:nth-child(2) > li:nth-child(2) > div:nth-child(2)"
+    },
+    "UNLOCKSTATE": {
+      "selector": "div.clearfix:nth-child(5) > div:nth-child(2) > ul:nth-child(2) > li:nth-child(2) > div:nth-child(3)"
+    },
+    "EXP": {
+      "selector": "div.clearfix:nth-child(5) > div:nth-child(2) > ul:nth-child(2) > li:nth-child(2) > div:nth-child(4)",
+      "regex": "(?P<current_exp>\\S+) \\/ (?P<max_exp>\\S+)"
+    }
+  },
+  "FISHER": {
+    "ICON": {
+      "selector": "div.clearfix:nth-child(5) > div:nth-child(2) > ul:nth-child(2) > li:nth-child(3) > i:nth-child(1) > img:nth-child(1)",
+      "attribute": "src"
+    },
+    "LEVEL": {
+      "selector": "div.clearfix:nth-child(5) > div:nth-child(2) > ul:nth-child(2) > li:nth-child(3) > div:nth-child(2)"
+    },
+    "UNLOCKSTATE": {
+      "selector": "div.clearfix:nth-child(5) > div:nth-child(2) > ul:nth-child(2) > li:nth-child(3) > div:nth-child(3)"
+    },
+    "EXP": {
+      "selector": "div.clearfix:nth-child(5) > div:nth-child(2) > ul:nth-child(2) > li:nth-child(3) > div:nth-child(4)",
+      "regex": "(?P<current_exp>\\S+) \\/ (?P<max_exp>\\S+)"
+    }
+  }
+}

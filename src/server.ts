@@ -1,412 +1,797 @@
-import express from 'express'
-import { Character } from './profile/character'
-import { ItemLevel } from './profile/itemLevel'
-import { CharacterSearch } from './search/character-search'
+import { Context, Hono } from "hono";
+import { cors } from "hono/middleware";
+import * as log from "@std/log";
+import { HtmlToMarkdownConverter } from "./core/HtmlToMarkdownConverter.ts";
+import { Character } from "./parser/character/Character.ts";
+import { ItemLevel } from "./parser/character/ItemLevel.ts";
+import { CharacterSearch } from "./parser/character/CharacterSearch.ts";
+import { RateLimiter } from "./middleware/RateLimiter.ts";
+import { InputValidator } from "./middleware/InputValidator.ts";
+import { ResponseCache } from "./middleware/ResponseCache.ts";
+import { Topics } from "./parser/news/Topics.ts";
+import { Notices } from "./parser/news/Notices.ts";
+import { NoticesDetails } from "./parser/news/NoticesDetails.ts";
+import { Maintenances } from "./parser/news/Maintenances.ts";
+import { MaintenancesDetails } from "./parser/news/MaintenancesDetails.ts";
+import { Updates } from "./parser/news/Updates.ts";
+import { UpdatesDetails } from "./parser/news/UpdatesDetails.ts";
+import { Status } from "./parser/news/Status.ts";
+import { StatusDetails } from "./parser/news/StatusDetails.ts";
 
-import { Topics } from './profile/topics'
+log.setup({
+  handlers: {
+    console: new log.ConsoleHandler("DEBUG", {
+      formatter: (logRecord) => {
+        const timestamp = new Date().toISOString();
+        return `${timestamp} [${logRecord.levelName}] ${logRecord.msg}`;
+      },
+    }),
+  },
+  loggers: {
+    default: {
+      level: "DEBUG",
+      handlers: ["console"],
+    },
+  },
+});
 
-import { Notices } from './profile/notices'
-import { NoticesDetails } from './profile/noticesDetails'
+const markdownConverter = new HtmlToMarkdownConverter();
+const rateLimiter = new RateLimiter(60000, 100);
+const newsCache = new ResponseCache(300);
+const app = new Hono();
 
-import { Maintenances } from './profile/maintenances'
-import { MaintenancesDetails } from './profile/maintenancesDetails'
+app.use(
+  "/*",
+  cors({
+    origin: "*",
+    allowMethods: ["GET", "OPTIONS"],
+    allowHeaders: ["Content-Type"],
+    maxAge: 86400,
+  }),
+);
 
-import { Updates } from './profile/updates'
-import { UpdatesDetails } from './profile/updatesDetails'
+app.use("/*", rateLimiter.middleware());
 
-import { Status } from './profile/status'
-import { StatusDetails } from './profile/statusDetails'
+app.use("/*", async (context: Context, next: () => Promise<void>) => {
+  const start = Date.now();
+  await next();
+  const ms = Date.now() - start;
+  log.info(
+    `${context.req.method} ${context.req.path} - ${context.res.status} (${ms}ms)`,
+  );
+});
 
-const app = express()
+app.get("/", (context: Context) => {
+  return context.json({
+    name: "FFXIV Lodestone API",
+    endpoints: {
+      character: {
+        search: {
+          method: "GET",
+          path: "/character/search",
+          description: "Search for characters",
+          params: {
+            name: "Character name (query parameter)",
+            worldname: "World name (query parameter)",
+            page: "Page number (query parameter, optional)",
+          },
+        },
+        profile: {
+          method: "GET",
+          path: "/character/:characterId",
+          description: "Get character profile by ID",
+          params: {
+            characterId: "Character ID (path parameter)",
+          },
+        },
+      },
+      lodestone: {
+        topics: {
+          method: "GET",
+          path: "/lodestone/topics",
+          description: "Get Lodestone topics",
+        },
+        notices: {
+          method: "GET",
+          path: "/lodestone/notices",
+          description: "Get Lodestone notices with details",
+        },
+        maintenance: {
+          method: "GET",
+          path: "/lodestone/maintenance",
+          description: "Get maintenance information with details",
+        },
+        updates: {
+          method: "GET",
+          path: "/lodestone/updates",
+          description: "Get game updates with details",
+        },
+        status: {
+          method: "GET",
+          path: "/lodestone/status",
+          description: "Get server status with details",
+        },
+      },
+    },
+  });
+});
 
-const characterParser = new Character()
-const characterSearch = new CharacterSearch()
-const topicsParser = new Topics()
-const noticesParser = new Notices()
-const noticesDetailsParser = new NoticesDetails()
-const maintenanceParser = new Maintenances()
-const maintenanceDetailsParser = new MaintenancesDetails()
-const updatesParser = new Updates()
-const updatesDetailsParser = new UpdatesDetails()
-const statusParser = new Status()
-const statusDetailsParser = new StatusDetails()
+const characterParser = new Character();
+const characterSearch = new CharacterSearch();
+const topicsParser = new Topics();
+const noticesParser = new Notices();
+const noticesDetailsParser = new NoticesDetails();
+const maintenanceParser = new Maintenances();
+const maintenanceDetailsParser = new MaintenancesDetails();
+const updatesParser = new Updates();
+const updatesDetailsParser = new UpdatesDetails();
+const statusParser = new Status();
+const statusDetailsParser = new StatusDetails();
 
-app.get('/character/search', async (req, res) => {
-  res.set('Access-Control-Allow-Origin', '*')
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(200)
+app.get("/character/search", async (context: Context) => {
+  const name = context.req.query("name");
+  if (!InputValidator.validateCharacterName(name)) {
+    return InputValidator.createValidationError(
+      context,
+      "Invalid character name. Must be 1-100 characters with letters, numbers, spaces, hyphens, or apostrophes.",
+    );
   }
+
+  const page = context.req.query("page");
+  if (!InputValidator.validatePageNumber(page)) {
+    return InputValidator.createValidationError(
+      context,
+      "Invalid page number. Must be a positive integer.",
+    );
+  }
+
   try {
-    const parsed = await characterSearch.parse(req)
-    return res.status(200).send(parsed)
-  } catch (err: any) {
-    return res.status(500).send(err)
+    const parsed = await characterSearch.parse(context);
+    return context.json(parsed as Record<string, unknown>);
+  } catch (err: unknown) {
+    const error = err as Error;
+    log.error(`Character search error: ${error.message}`);
+    return context.json({ error: error.message }, 500);
   }
-})
+});
 
-app.get('/character/:characterId', async (req, res) => {
-  res.set('Access-Control-Allow-Origin', '*')
-  if ((req.query['columns'] as string)?.indexOf('Bio') > -1) {
-    res.set('Cache-Control', 'max-age=3600')
+app.get("/character/:characterId", async (context: Context) => {
+  const characterId = context.req.param("characterId");
+  if (!InputValidator.validateCharacterId(characterId)) {
+    return InputValidator.createValidationError(
+      context,
+      "Invalid character ID. Must be a positive integer.",
+    );
   }
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(200)
+
+  const bioColumns = context.req.query("columns");
+  if (bioColumns?.indexOf("Bio") !== -1 && bioColumns !== undefined) {
+    context.header("Cache-Control", "max-age=3600");
   }
+
   try {
-    const character = await characterParser.parse(req, 'Character.')
-    let parsed: any = {
-      Character: {
-        ID: +req.params.characterId,
+    const character = await characterParser.parse(context, "Character.");
+    let parsed = {
+      character: {
+        id: +characterId,
         ...character,
       },
+    } as Record<string, unknown>;
+
+    parsed = fixNameColorIfOnlySecondDyeIsBeingUsed(parsed);
+    parsed = countDyeSlots(parsed);
+    parsed = parseNumericStrings(parsed);
+    (parsed.character as Record<string, unknown>).item_level = ItemLevel
+      .getAverageItemLevel(parsed);
+
+    const characterData = parsed.character as Record<string, unknown>;
+    if (characterData.bio && typeof characterData.bio === "string") {
+      const bioHtml = characterData.bio;
+      characterData.bio = {
+        html: bioHtml,
+        markdown: markdownConverter.convert(bioHtml),
+      };
     }
 
-    parsed = fixNameColorIfOnlySecondDyeIsBeingUsed(parsed)
-    parsed = countDyeSlots(parsed)
-    parsed.Character.item_level = ItemLevel.getAverageItemLevel(parsed)
-
-    return res.status(200).send(parsed)
-  } catch (err: any) {
-    if (err.message === '404') return res.sendStatus(404)
-    else return res.status(500).send(err)
+    return context.json(parsed);
+  } catch (err: unknown) {
+    const error = err as Error;
+    log.error(`Character fetch error for ID ${characterId}: ${error.message}`);
+    if (error.message === "404") {
+      return context.json({ error: "Not found" }, 404);
+    } else return context.json({ error: error.message }, 500);
   }
-})
+});
 
-function fixNameColorIfOnlySecondDyeIsBeingUsed(parsed: any) {
-  if (!parsed.Character.mainhand?.color_code && parsed.Character.mainhand?.color_code2) {
-    parsed.Character.mainhand.color_name2 = parsed.Character.mainhand.color_name
-    delete parsed.Character.mainhand.color_name
-  }
-
-  if (!parsed.Character.offhand?.color_code && parsed.Character.offhand?.color_code2) {
-    parsed.Character.offhand.color_name2 = parsed.Character.offhand.color_name
-    delete parsed.Character.offhand.color_name
+function fixNameColorIfOnlySecondDyeIsBeingUsed(
+  parsed: Record<string, unknown>,
+) {
+  const character = parsed.character as Record<string, Record<string, unknown>>;
+  if (!character) {
+    return parsed;
   }
 
-  if (!parsed.Character.head?.color_code && parsed.Character.head?.color_code2) {
-    parsed.Character.head.color_name2 = parsed.Character.head.color_name
-    delete parsed.Character.head.color_name
+  if (
+    !character.mainhand?.color_code &&
+    character.mainhand?.color_code2
+  ) {
+    character.mainhand.color_name2 = character.mainhand.color_name;
+    delete character.mainhand.color_name;
   }
 
-  if (!parsed.Character.body?.color_code && parsed.Character.body?.color_code2) {
-    parsed.Character.body.color_name2 = parsed.Character.body.color_name
-    delete parsed.Character.body.color_name
+  if (
+    !character.offhand?.color_code &&
+    character.offhand?.color_code2
+  ) {
+    character.offhand.color_name2 = character.offhand.color_name;
+    delete character.offhand.color_name;
   }
 
-  if (!parsed.Character.hands?.color_code && parsed.Character.hands?.color_code2) {
-    parsed.Character.hands.color_name2 = parsed.Character.hands.color_name
-    delete parsed.Character.hands.color_name
+  if (
+    !character.head?.color_code && character.head?.color_code2
+  ) {
+    character.head.color_name2 = character.head.color_name;
+    delete character.head.color_name;
   }
 
-  if (!parsed.Character.legs?.color_code && parsed.Character.legs?.color_code2) {
-    parsed.Character.legs.color_name2 = parsed.Character.legs.color_name
-    delete parsed.Character.legs.color_name
+  if (
+    !character.body?.color_code && character.body?.color_code2
+  ) {
+    character.body.color_name2 = character.body.color_name;
+    delete character.body.color_name;
   }
 
-  if (!parsed.Character.feet?.color_code && parsed.Character.feet?.color_code2) {
-    parsed.Character.feet.color_name2 = parsed.Character.feet.color_name
-    delete parsed.Character.feet.color_name
+  if (
+    !character.hands?.color_code && character.hands?.color_code2
+  ) {
+    character.hands.color_name2 = character.hands.color_name;
+    delete character.hands.color_name;
   }
 
-  if (!parsed.Character.earrings?.color_code && parsed.Character.earrings?.color_code2) {
-    parsed.Character.earrings.color_name2 = parsed.Character.earrings.color_name
-    delete parsed.Character.earrings.color_name
+  if (
+    !character.legs?.color_code && character.legs?.color_code2
+  ) {
+    character.legs.color_name2 = character.legs.color_name;
+    delete character.legs.color_name;
   }
 
-  if (!parsed.Character.necklace?.color_code && parsed.Character.necklace?.color_code2) {
-    parsed.Character.necklace.color_name2 = parsed.Character.necklace.color_name
-    delete parsed.Character.necklace.color_name
+  if (
+    !character.feet?.color_code && character.feet?.color_code2
+  ) {
+    character.feet.color_name2 = character.feet.color_name;
+    delete character.feet.color_name;
   }
 
-  if (!parsed.Character.bracelets?.color_code && parsed.Character.bracelets?.color_code2) {
-    parsed.Character.bracelets.color_name2 = parsed.Character.bracelets.color_name
-    delete parsed.Character.bracelets.color_name
+  if (
+    !character.earrings?.color_code &&
+    character.earrings?.color_code2
+  ) {
+    character.earrings.color_name2 = character.earrings.color_name;
+    delete character.earrings.color_name;
   }
 
-  if (!parsed.Character.ring1?.color_code && parsed.Character.ring1?.color_code2) {
-    parsed.Character.ring1.color_name2 = parsed.Character.ring1.color_name
-    delete parsed.Character.ring1.color_name
+  if (
+    !character.necklace?.color_code &&
+    character.necklace?.color_code2
+  ) {
+    character.necklace.color_name2 = character.necklace.color_name;
+    delete character.necklace.color_name;
   }
 
-  if (!parsed.Character.ring2?.color_code && parsed.Character.ring2?.color_code2) {
-    parsed.Character.ring2.color_name2 = parsed.Character.ring2.color_name
-    delete parsed.Character.ring2.color_name
+  if (
+    !character.bracelets?.color_code &&
+    character.bracelets?.color_code2
+  ) {
+    character.bracelets.color_name2 = character.bracelets.color_name;
+    delete character.bracelets.color_name;
   }
 
-  return parsed
+  if (
+    !character.ring1?.color_code && character.ring1?.color_code2
+  ) {
+    character.ring1.color_name2 = character.ring1.color_name;
+    delete character.ring1.color_name;
+  }
+
+  if (
+    !character.ring2?.color_code && character.ring2?.color_code2
+  ) {
+    character.ring2.color_name2 = character.ring2.color_name;
+    delete character.ring2.color_name;
+  }
+
+  return parsed;
 }
 
-function countDyeSlots(parsed: any) {
-  if (parsed.Character.mainhand?.amount_dye_slots) {
-    parsed.Character.mainhand.amount_dye_slots
-      = (parsed.Character.mainhand.amount_dye_slots.split('<img')[0].match(/staining/g) || []).length
+function countDyeSlots(parsed: Record<string, unknown>) {
+  const character = parsed.character as Record<string, Record<string, unknown>>;
+  if (!character) {
+    return parsed;
   }
 
-  if (parsed.Character.offhand?.amount_dye_slots) {
-    parsed.Character.offhand.amount_dye_slots
-      = (parsed.Character.offhand.amount_dye_slots.split('<img')[0].match(/staining/g) || []).length
+  if (character.mainhand?.amount_dye_slots) {
+    character.mainhand.amount_dye_slots =
+      ((character.mainhand.amount_dye_slots as string).split("<img")[0].match(
+        /staining/g,
+      ) || []).length;
   }
 
-  if (parsed.Character.head.amount_dye_slots) {
-    parsed.Character.head.amount_dye_slots
-      = (parsed.Character.head.amount_dye_slots.split('<img')[0].match(/staining/g) || []).length
+  if (character.offhand?.amount_dye_slots) {
+    character.offhand.amount_dye_slots =
+      ((character.offhand.amount_dye_slots as string).split("<img")[0].match(
+        /staining/g,
+      ) || []).length;
   }
 
-  if (parsed.Character.body.amount_dye_slots) {
-    parsed.Character.body.amount_dye_slots
-      = (parsed.Character.body.amount_dye_slots.split('<img')[0].match(/staining/g) || []).length
+  if (character.head?.amount_dye_slots) {
+    character.head.amount_dye_slots =
+      ((character.head.amount_dye_slots as string).split("<img")[0].match(
+        /staining/g,
+      ) || []).length;
   }
 
-  if (parsed.Character.hands.amount_dye_slots) {
-    parsed.Character.hands.amount_dye_slots
-      = (parsed.Character.hands.amount_dye_slots.split('<img')[0].match(/staining/g) || []).length
+  if (character.body?.amount_dye_slots) {
+    character.body.amount_dye_slots =
+      ((character.body.amount_dye_slots as string).split("<img")[0].match(
+        /staining/g,
+      ) || []).length;
   }
 
-  if (parsed.Character.legs.amount_dye_slots) {
-    parsed.Character.legs.amount_dye_slots
-      = (parsed.Character.legs.amount_dye_slots.split('<img')[0].match(/staining/g) || []).length
+  if (character.hands?.amount_dye_slots) {
+    character.hands.amount_dye_slots =
+      ((character.hands.amount_dye_slots as string).split("<img")[0].match(
+        /staining/g,
+      ) || []).length;
   }
 
-  if (parsed.Character.feet.amount_dye_slots) {
-    parsed.Character.feet.amount_dye_slots
-      = (parsed.Character.feet.amount_dye_slots.split('<img')[0].match(/staining/g) || []).length
+  if (character.legs?.amount_dye_slots) {
+    character.legs.amount_dye_slots =
+      ((character.legs.amount_dye_slots as string).split("<img")[0].match(
+        /staining/g,
+      ) || []).length;
   }
 
-  if (parsed.Character.earrings.amount_dye_slots) {
-    parsed.Character.earrings.amount_dye_slots
-      = (parsed.Character.earrings.amount_dye_slots.split('<img')[0].match(/staining/g) || []).length
+  if (character.feet?.amount_dye_slots) {
+    character.feet.amount_dye_slots =
+      ((character.feet.amount_dye_slots as string).split("<img")[0].match(
+        /staining/g,
+      ) || []).length;
   }
 
-  if (parsed.Character.necklace.amount_dye_slots) {
-    parsed.Character.necklace.amount_dye_slots
-      = (parsed.Character.necklace.amount_dye_slots.split('<img')[0].match(/staining/g) || []).length
+  if (character.earrings?.amount_dye_slots) {
+    character.earrings.amount_dye_slots =
+      ((character.earrings.amount_dye_slots as string).split("<img")[0].match(
+        /staining/g,
+      ) || []).length;
   }
 
-  if (parsed.Character.bracelets.amount_dye_slots) {
-    parsed.Character.bracelets.amount_dye_slots
-      = (parsed.Character.bracelets.amount_dye_slots.split('<img')[0].match(/staining/g) || []).length
+  if (character.necklace?.amount_dye_slots) {
+    character.necklace.amount_dye_slots =
+      ((character.necklace.amount_dye_slots as string).split("<img")[0].match(
+        /staining/g,
+      ) || []).length;
   }
 
-  if (parsed.Character.ring1.amount_dye_slots) {
-    parsed.Character.ring1.amount_dye_slots
-      = (parsed.Character.ring1.amount_dye_slots.split('<img')[0].match(/staining/g) || []).length
+  if (character.bracelets?.amount_dye_slots) {
+    character.bracelets.amount_dye_slots =
+      ((character.bracelets.amount_dye_slots as string).split("<img")[0].match(
+        /staining/g,
+      ) || []).length;
   }
 
-  if (parsed.Character.ring2.amount_dye_slots) {
-    parsed.Character.ring2.amount_dye_slots
-      = (parsed.Character.ring2.amount_dye_slots.split('<img')[0].match(/staining/g) || []).length
+  if (character.ring1?.amount_dye_slots) {
+    character.ring1.amount_dye_slots =
+      ((character.ring1.amount_dye_slots as string).split("<img")[0].match(
+        /staining/g,
+      ) || []).length;
   }
 
-  return parsed
+  if (character.ring2?.amount_dye_slots) {
+    character.ring2.amount_dye_slots =
+      ((character.ring2.amount_dye_slots as string).split("<img")[0].match(
+        /staining/g,
+      ) || []).length;
+  }
+
+  return parsed;
 }
 
-app.get('/lodestone/topics', async (req, res) => {
-  res.set('Access-Control-Allow-Origin', '*')
-  res.set('Cache-Control', 'max-age=0')
-
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(200)
+function parseNumericStrings(parsed: Record<string, unknown>) {
+  const character = parsed.character as Record<string, unknown>;
+  if (!character) {
+    return parsed;
   }
+
+  // Parse bozja mettle
+  if (character.bozja && typeof character.bozja === "object") {
+    const bozja = character.bozja as Record<string, unknown>;
+    if (typeof bozja.mettle === "string") {
+      const cleanedValue = bozja.mettle.replace(/,/g, "");
+      const numValue = Number(cleanedValue);
+      if (!isNaN(numValue)) {
+        bozja.mettle = numValue;
+      }
+    }
+  }
+
+  // Parse job exp values (current_exp and max_exp)
+  const jobFields = [
+    "paladin",
+    "warrior",
+    "darkknight",
+    "gunbreaker",
+    "whitemage",
+    "scholar",
+    "astrologian",
+    "sage",
+    "monk",
+    "dragoon",
+    "ninja",
+    "samurai",
+    "reaper",
+    "viper",
+    "bard",
+    "machinist",
+    "dancer",
+    "blackmage",
+    "summoner",
+    "redmage",
+    "pictomancer",
+    "bluemage",
+    "carpenter",
+    "blacksmith",
+    "armorer",
+    "goldsmith",
+    "leatherworker",
+    "weaver",
+    "alchemist",
+    "culinarian",
+    "miner",
+    "botanist",
+    "fisher",
+    "eureka",
+  ];
+
+  for (const jobField of jobFields) {
+    if (character[jobField] && typeof character[jobField] === "object") {
+      const job = character[jobField] as Record<string, unknown>;
+
+      if (typeof job.current_exp === "string") {
+        const cleanedValue = job.current_exp.replace(/,/g, "");
+        const numValue = Number(cleanedValue);
+        if (!isNaN(numValue)) {
+          job.current_exp = numValue;
+        }
+      }
+
+      if (typeof job.max_exp === "string") {
+        const cleanedValue = job.max_exp.replace(/,/g, "");
+        const numValue = Number(cleanedValue);
+        if (!isNaN(numValue)) {
+          job.max_exp = numValue;
+        }
+      }
+    }
+  }
+
+  return parsed;
+}
+
+app.get("/lodestone/topics", async (context: Context) => {
+  const cacheKey = "lodestone:topics";
+  const cached = newsCache.get(cacheKey);
+
+  if (cached) {
+    context.header("X-Cache", "HIT");
+    context.header("Cache-Control", "public, max-age=300");
+    context.header("ETag", cached.etag);
+
+    if (context.req.header("If-None-Match") === cached.etag) {
+      return context.body(null, 304);
+    }
+
+    return context.json(cached.data);
+  }
+
+  context.header("X-Cache", "MISS");
+  context.header("Cache-Control", "public, max-age=300");
+
   try {
-    const topics = await topicsParser.parse(req)
-    const parsed: any = {
+    const topics = await topicsParser.parse(context);
+    const topicsFiltered = Object.fromEntries(
+      Object.entries(topics).filter(([_, v]) => v !== null),
+    );
+
+    const parsed = {
       Topics: {
-        ...topics,
+        ...topicsFiltered,
       },
+    } as Record<string, Record<string, unknown>>;
+
+    for (const key in parsed.Topics) {
+      const topic = parsed.Topics[key];
+      if (topic && (topic as Record<string, unknown>).link) {
+        (topic as Record<string, unknown>).link =
+          "https://eu.finalfantasyxiv.com" +
+          (topic as Record<string, unknown>).link;
+      }
     }
 
-    for (var key in parsed.Topics)
-      if (parsed.Topics[key].link)
-        parsed.Topics[key].link =
-          'https://eu.finalfantasyxiv.com' + parsed.Topics[key].link
+    const resArray = [];
+    for (const topicKey in parsed.Topics) {
+      const topic = parsed.Topics[topicKey];
+      if (topic) resArray.push(topic);
+    }
 
-    const resArray = []
-    for (var key in parsed.Topics) resArray.push(parsed.Topics[key])
+    parsed.Topics = resArray as unknown as Record<string, unknown>;
 
-    parsed.Topics = resArray
+    const withMarkdown = markdownConverter.addMarkdownFields(parsed);
+    newsCache.set(cacheKey, withMarkdown);
 
-    return res.status(200).send(parsed)
-  } catch (err: any) {
-    if (err.message === '404') return res.sendStatus(404)
-    else return res.status(500).send(err)
+    return context.json(withMarkdown);
+  } catch (err: unknown) {
+    const error = err as Error;
+    log.error(`Topics fetch error: ${error.message}`);
+    if (error.message === "404") {
+      return context.json({ error: "Not found" }, 404);
+    } else return context.json({ error: error.message }, 500);
   }
-})
+});
 
-app.get('/lodestone/notices', async (req, res) => {
-  res.set('Access-Control-Allow-Origin', '*')
-  res.set('Cache-Control', 'max-age=0')
+app.get("/lodestone/notices", async (context: Context) => {
+  context.header("Cache-Control", "max-age=0");
 
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(200)
-  }
   try {
-    const notices = await noticesParser.parse(req)
+    const notices = await noticesParser.parse(context);
     const noticesFiltered = Object.fromEntries(
-      Object.entries(notices).filter(([_, v]) => v !== null)
-    )
+      Object.entries(notices).filter(([_, v]) => v !== null),
+    );
 
-    const parsed: any = {
+    const parsed = {
       Notices: {
         ...noticesFiltered,
       },
+    } as Record<string, unknown>;
+
+    for (const key in (parsed.Notices as Record<string, unknown>)) {
+      const notice =
+        (parsed.Notices as Record<string, Record<string, unknown>>)[key];
+      if (notice?.link) {
+        notice.link = "https://eu.finalfantasyxiv.com" + notice.link;
+      }
     }
 
-    for (var key in parsed.Notices)
-      if (parsed.Notices[key].link)
-        parsed.Notices[key].link =
-          'https://eu.finalfantasyxiv.com' + parsed.Notices[key].link
-
-    const resArray = []
-    for (var key in parsed.Notices) resArray.push(parsed.Notices[key])
-
-    parsed.Notices = resArray
-
-    for (const key in parsed.Notices) {
-      const details = await noticesDetailsParser.parse(
-        req,
-        '',
-        parsed.Notices[key].link
-      )
-
-      parsed.Notices[key].details = details
+    const resArray = [];
+    for (const noticeKey in (parsed.Notices as Record<string, unknown>)) {
+      const notice = (parsed.Notices as Record<string, unknown>)[noticeKey];
+      if (notice) resArray.push(notice);
     }
 
-    return res.status(200).send(parsed)
-  } catch (err: any) {
-    if (err.message === '404') return res.sendStatus(404)
-    else return res.status(500).send(err)
-  }
-})
+    parsed.Notices = resArray;
 
-app.get('/lodestone/maintenance', async (req, res) => {
-  res.set('Access-Control-Allow-Origin', '*')
-  res.set('Cache-Control', 'max-age=0')
+    const detailsPromises = (parsed.Notices as Array<Record<string, unknown>>)
+      .map((notice) =>
+        noticesDetailsParser.parse(context, "", notice.link as string)
+      );
+    const detailsResults = await Promise.all(detailsPromises);
 
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(200)
+    (parsed.Notices as Array<Record<string, unknown>>).forEach(
+      (notice, index: number) => {
+        notice.details = detailsResults[index];
+      },
+    );
+
+    const withMarkdown = markdownConverter.addMarkdownFields(parsed);
+    return context.json(withMarkdown);
+  } catch (err: unknown) {
+    const error = err as Error;
+    if (error.message === "404") {
+      return context.json({ error: "Not found" }, 404);
+    } else return context.json({ error: error.message }, 500);
   }
+});
+
+app.get("/lodestone/maintenance", async (context: Context) => {
+  context.header("Cache-Control", "max-age=0");
+
   try {
-    const maintenances = await maintenanceParser.parse(req)
-    const parsed: any = {
+    const maintenances = await maintenanceParser.parse(context);
+    const parsed = {
       Maintenances: {
         ...maintenances,
       },
+    } as Record<string, unknown>;
+
+    for (
+      const key
+        in (parsed.Maintenances as Record<string, Record<string, unknown>>)
+    ) {
+      const maintenance =
+        (parsed.Maintenances as Record<string, Record<string, unknown>>)[key];
+      if (maintenance?.link) {
+        maintenance.link = "https://eu.finalfantasyxiv.com" + maintenance.link;
+      }
     }
 
-    for (var key in parsed.Maintenances)
-      if (parsed.Maintenances[key]?.link)
-        parsed.Maintenances[key].link =
-          'https://eu.finalfantasyxiv.com' + parsed.Maintenances[key].link
-
-    const resArray = []
-    for (var key in parsed.Maintenances)
-      if (parsed.Maintenances[key]) resArray.push(parsed.Maintenances[key])
-
-    parsed.Maintenances = resArray
-
-    for (const key in parsed.Maintenances) {
-      const details = await maintenanceDetailsParser.parse(
-        req,
-        '',
-        parsed.Maintenances[key]?.link
-      )
-
-      if (parsed.Maintenances[key]) parsed.Maintenances[key].details = details
+    const resArray = [];
+    for (
+      const maintenanceKey in (parsed.Maintenances as Record<string, unknown>)
+    ) {
+      const maintenance =
+        (parsed.Maintenances as Record<string, unknown>)[maintenanceKey];
+      if (maintenance) resArray.push(maintenance);
     }
 
-    return res.status(200).send(parsed)
-  } catch (err: any) {
-    if (err.message === '404') return res.sendStatus(404)
-    else return res.status(500).send(err)
-  }
-})
+    parsed.Maintenances = resArray;
 
-app.get('/lodestone/updates', async (req, res) => {
-  res.set('Access-Control-Allow-Origin', '*')
-  res.set('Cache-Control', 'max-age=0')
+    const detailsPromises =
+      (parsed.Maintenances as Array<Record<string, unknown>>).map((
+        maintenance,
+      ) =>
+        maintenanceDetailsParser.parse(
+          context,
+          "",
+          (maintenance as Record<string, unknown>)?.link as string,
+        )
+      );
+    const detailsResults = await Promise.all(detailsPromises);
 
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(200)
+    (parsed.Maintenances as Array<Record<string, unknown>>).forEach(
+      (maintenance, index: number) => {
+        if (maintenance) {
+          (maintenance as Record<string, unknown>).details =
+            detailsResults[index];
+        }
+      },
+    );
+
+    const withMarkdown = markdownConverter.addMarkdownFields(parsed);
+    return context.json(withMarkdown);
+  } catch (err: unknown) {
+    const error = err as Error;
+    if (error.message === "404") {
+      return context.json({ error: "Not found" }, 404);
+    } else return context.json({ error: error.message }, 500);
   }
+});
+
+app.get("/lodestone/updates", async (context: Context) => {
+  context.header("Cache-Control", "max-age=0");
+
   try {
-    const updates = await updatesParser.parse(req)
-    const parsed: any = {
+    const updates = await updatesParser.parse(context);
+    const updatesFiltered = Object.fromEntries(
+      Object.entries(updates).filter(([_, v]) => v !== null),
+    );
+
+    const parsed = {
       Updates: {
-        ...updates,
+        ...updatesFiltered,
       },
+    } as Record<string, unknown>;
+
+    for (
+      const key in (parsed.Updates as Record<string, Record<string, unknown>>)
+    ) {
+      const update =
+        (parsed.Updates as Record<string, Record<string, unknown>>)[key];
+      if (update?.link) {
+        update.link = "https://eu.finalfantasyxiv.com" + update.link;
+      }
     }
 
-    for (var key in parsed.Updates)
-      if (parsed.Updates[key].link)
-        parsed.Updates[key].link =
-          'https://eu.finalfantasyxiv.com' + parsed.Updates[key].link
-
-    const resArray = []
-    for (var key in parsed.Updates) resArray.push(parsed.Updates[key])
-
-    parsed.Updates = resArray
-
-    for (const key in parsed.Updates) {
-      const details = await updatesDetailsParser.parse(
-        req,
-        '',
-        parsed.Updates[key].link
-      )
-
-      parsed.Updates[key].details = details
+    const resArray: unknown[] = [];
+    for (const updateKey in (parsed.Updates as Record<string, unknown>)) {
+      const update = (parsed.Updates as Record<string, unknown>)[updateKey];
+      if (update) resArray.push(update);
     }
 
-    return res.status(200).send(parsed)
-  } catch (err: any) {
-    if (err.message === '404') return res.sendStatus(404)
-    else return res.status(500).send(err)
-  }
-})
+    parsed.Updates = resArray;
 
-app.get('/lodestone/status', async (req, res) => {
-  res.set('Access-Control-Allow-Origin', '*')
-  res.set('Cache-Control', 'max-age=0')
+    const detailsPromises = (parsed.Updates as Array<Record<string, unknown>>)
+      .map((update) =>
+        updatesDetailsParser.parse(context, "", update.link as string)
+      );
+    const detailsResults = await Promise.all(detailsPromises);
 
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(200)
+    (parsed.Updates as Array<Record<string, unknown>>).forEach(
+      (update, index: number) => {
+        (update as Record<string, unknown>).details = detailsResults[index];
+      },
+    );
+
+    const withMarkdown = markdownConverter.addMarkdownFields(parsed);
+    return context.json(withMarkdown);
+  } catch (err: unknown) {
+    const error = err as Error;
+    if (error.message === "404") {
+      return context.json({ error: "Not found" }, 404);
+    } else return context.json({ error: error.message }, 500);
   }
+});
+
+app.get("/lodestone/status", async (context: Context) => {
+  context.header("Cache-Control", "max-age=0");
+
   try {
-    const status = await statusParser.parse(req)
-    const parsed: any = {
+    const status = await statusParser.parse(context);
+    const statusFiltered = Object.fromEntries(
+      Object.entries(status).filter(([_, v]) => v !== null),
+    );
+
+    const parsed = {
       Status: {
-        ...status,
+        ...statusFiltered,
       },
+    } as Record<string, unknown>;
+
+    for (
+      const key in (parsed.Status as Record<string, Record<string, unknown>>)
+    ) {
+      const statusItem =
+        (parsed.Status as Record<string, Record<string, unknown>>)[key];
+      if (statusItem?.link) {
+        statusItem.link = "https://eu.finalfantasyxiv.com" + statusItem.link;
+      }
     }
 
-    for (var key in parsed.Status)
-      if (parsed.Status[key].link)
-        parsed.Status[key].link =
-          'https://eu.finalfantasyxiv.com' + parsed.Status[key].link
-
-    const resArray = []
-    for (var key in parsed.Status) resArray.push(parsed.Status[key])
-
-    parsed.Status = resArray
-
-    for (const key in parsed.Status) {
-      const details = await statusDetailsParser.parse(
-        req,
-        '',
-        parsed.Status[key].link
-      )
-
-      parsed.Status[key].details = details
+    const resArray: unknown[] = [];
+    for (const statusKey in (parsed.Status as Record<string, unknown>)) {
+      const statusItem = (parsed.Status as Record<string, unknown>)[statusKey];
+      if (statusItem) resArray.push(statusItem);
     }
 
-    return res.status(200).send(parsed)
-  } catch (err: any) {
-    if (err.message === '404') return res.sendStatus(404)
-    else return res.status(500).send(err)
+    parsed.Status = resArray;
+
+    const detailsPromises = (parsed.Status as Array<Record<string, unknown>>)
+      .map((statusItem) =>
+        statusDetailsParser.parse(context, "", statusItem.link as string)
+      );
+    const detailsResults = await Promise.all(detailsPromises);
+
+    (parsed.Status as Array<Record<string, unknown>>).forEach(
+      (statusItem, index: number) => {
+        (statusItem as Record<string, unknown>).details = detailsResults[index];
+      },
+    );
+
+    const withMarkdown = markdownConverter.addMarkdownFields(parsed);
+    return context.json(withMarkdown);
+  } catch (err: unknown) {
+    const error = err as Error;
+    if (error.message === "404") {
+      return context.json({ error: "Not found" }, 404);
+    } else return context.json({ error: error.message }, 500);
   }
-})
+});
 
-const port = 3001
-const server = app.listen(port, () => {
-  console.log(`Listening at http://localhost:${port}`)
-})
-server.on('error', console.error)
+const port = parseInt(Deno.env.get("PORT") || "3001");
+const hostname = Deno.env.get("SERVER_HOST") || "127.0.0.1";
+
+log.debug(`Attempting to bind to hostname: ${hostname}, port: ${port}`);
+
+try {
+  Deno.serve({
+    port,
+    hostname,
+    onListen: ({ hostname, port }) => {
+      log.debug(`onListen received - hostname: ${hostname}, port: ${port}`);
+      let displayHost = hostname;
+      if (hostname === "0.0.0.0") {
+        displayHost = "localhost";
+      } else if (hostname === "127.0.0.1") {
+        displayHost = "localhost";
+      }
+      log.info(`Server running on http://${displayHost}:${port}`);
+    },
+    onError: (error: unknown) => {
+      const err = error as Error;
+      log.error(`Server error: ${err.message}`);
+      return new Response("Internal Server Error", { status: 500 });
+    },
+  }, app.fetch);
+} catch (error) {
+  const err = error as Error;
+  log.error(`Failed to start server: ${err.message}`);
+  Deno.exit(1);
+}

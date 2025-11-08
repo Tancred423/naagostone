@@ -1,0 +1,17 @@
+FROM denoland/deno:2.5.6
+
+WORKDIR /app
+
+COPY deno.json deno.lock ./
+
+COPY src ./src
+COPY lib ./lib
+
+RUN deno cache src/server.ts
+
+EXPOSE 3001
+
+ENV SERVER_HOST=0.0.0.0
+
+CMD ["deno", "run", "--allow-net", "--allow-env", "--allow-sys", "src/server.ts"]
+

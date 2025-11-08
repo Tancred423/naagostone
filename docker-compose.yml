@@ -1,0 +1,17 @@
+version: "3.8"
+
+services:
+  naagostone:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: naagostone-api
+    ports:
+      - "3001:3001"
+    restart: unless-stopped
+    networks:
+      - naagostone-network
+
+networks:
+  naagostone-network:
+    driver: bridge
