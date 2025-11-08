@@ -730,36 +730,37 @@ app.get("/lodestone/statuses", async (context: Context) => {
     );
 
     const parsed = {
-      status: {
+      statuses: {
         ...statusFiltered,
       },
     } as Record<string, unknown>;
 
     for (
-      const key in (parsed.status as Record<string, Record<string, unknown>>)
+      const key in (parsed.statuses as Record<string, Record<string, unknown>>)
     ) {
       const statusItem =
-        (parsed.status as Record<string, Record<string, unknown>>)[key];
+        (parsed.statuses as Record<string, Record<string, unknown>>)[key];
       if (statusItem?.link) {
         statusItem.link = "https://eu.finalfantasyxiv.com" + statusItem.link;
       }
     }
 
     const resArray: unknown[] = [];
-    for (const statusKey in (parsed.status as Record<string, unknown>)) {
-      const statusItem = (parsed.status as Record<string, unknown>)[statusKey];
+    for (const statusKey in (parsed.statuses as Record<string, unknown>)) {
+      const statusItem =
+        (parsed.statuses as Record<string, unknown>)[statusKey];
       if (statusItem) resArray.push(statusItem);
     }
 
-    parsed.status = resArray;
+    parsed.statuses = resArray;
 
-    const detailsPromises = (parsed.status as Array<Record<string, unknown>>)
+    const detailsPromises = (parsed.statuses as Array<Record<string, unknown>>)
       .map((statusItem) =>
         statusDetailsParser.parse(context, "", statusItem.link as string)
       );
     const detailsResults = await Promise.all(detailsPromises);
 
-    (parsed.status as Array<Record<string, unknown>>).forEach(
+    (parsed.statuses as Array<Record<string, unknown>>).forEach(
       (statusItem, index: number) => {
         Object.assign(statusItem, detailsResults[index]);
       },
