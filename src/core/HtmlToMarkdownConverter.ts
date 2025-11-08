@@ -476,11 +476,6 @@ export class HtmlToMarkdownConverter {
           html: value,
           markdown: this.convert(value, link),
         };
-      } else if (key.toLowerCase() === "text" && typeof value === "string") {
-        result.text = {
-          html: value,
-          markdown: this.convert(value, link),
-        };
       } else if (typeof value === "object" && value !== null) {
         result[key] = this.addMarkdownFields(value);
       }

@@ -577,7 +577,7 @@ app.get("/lodestone/notices", async (context: Context) => {
 
     (parsed.Notices as Array<Record<string, unknown>>).forEach(
       (notice, index: number) => {
-        notice.details = detailsResults[index];
+        Object.assign(notice, detailsResults[index]);
       },
     );
 
@@ -639,8 +639,7 @@ app.get("/lodestone/maintenance", async (context: Context) => {
     (parsed.Maintenances as Array<Record<string, unknown>>).forEach(
       (maintenance, index: number) => {
         if (maintenance) {
-          (maintenance as Record<string, unknown>).details =
-            detailsResults[index];
+          Object.assign(maintenance, detailsResults[index]);
         }
       },
     );
@@ -696,7 +695,7 @@ app.get("/lodestone/updates", async (context: Context) => {
 
     (parsed.Updates as Array<Record<string, unknown>>).forEach(
       (update, index: number) => {
-        (update as Record<string, unknown>).details = detailsResults[index];
+        Object.assign(update, detailsResults[index]);
       },
     );
 
@@ -751,7 +750,7 @@ app.get("/lodestone/status", async (context: Context) => {
 
     (parsed.Status as Array<Record<string, unknown>>).forEach(
       (statusItem, index: number) => {
-        (statusItem as Record<string, unknown>).details = detailsResults[index];
+        Object.assign(statusItem, detailsResults[index]);
       },
     );
 
