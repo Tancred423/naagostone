@@ -518,8 +518,8 @@ export class HtmlToMarkdownConverter {
       return markdown;
     }
 
-    const suffix = link ? `\n\n*[Continue reading...](${link})*` : "...";
-    let cutLength = maxLength - suffix.length;
+    const suffix = link ? `\n\n*[Continue reading](${link})*` : "";
+    let cutLength = maxLength - suffix.length - 3;
 
     // Find the last complete word before cutLength
     const lastSpaceIndex = markdown.lastIndexOf(" ", cutLength);
@@ -578,7 +578,7 @@ export class HtmlToMarkdownConverter {
       }
     }
 
-    return markdown.substring(0, cutLength).trimEnd() + suffix;
+    return markdown.substring(0, cutLength).trimEnd() + "..." + suffix;
   }
 
   /**
