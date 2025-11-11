@@ -648,8 +648,12 @@ app.get("/lodestone/maintenances", async (context: Context) => {
             const timestamps = markdownConverter.extractMaintenanceTimestamps(
               maintenance.description,
             );
-            maintenance.start_timestamp = timestamps.start_timestamp;
-            maintenance.end_timestamp = timestamps.end_timestamp;
+            maintenance.start_timestamp = timestamps.start_timestamp
+              ? timestamps.start_timestamp * 1000
+              : null;
+            maintenance.end_timestamp = timestamps.end_timestamp
+              ? timestamps.end_timestamp * 1000
+              : null;
           }
         }
       },
