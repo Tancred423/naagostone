@@ -471,7 +471,11 @@ export class HtmlToMarkdownConverter {
     for (const key in result) {
       const value = result[key];
 
-      if (key.toLowerCase() === "description" && typeof value === "string") {
+      if (key.toLowerCase() === "date") {
+        result.date = (result.date as number) * 1000;
+      } else if (
+        key.toLowerCase() === "description" && typeof value === "string"
+      ) {
         result.description = {
           html: value,
           markdown: this.convert(value, link),
