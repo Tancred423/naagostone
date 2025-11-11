@@ -643,7 +643,8 @@ app.get("/lodestone/maintenances", async (context: Context) => {
 
           if (
             maintenance.description &&
-            typeof maintenance.description === "string"
+            typeof maintenance.description === "string" &&
+            maintenance.tag === "[Maintenance]"
           ) {
             const timestamps = markdownConverter.extractMaintenanceTimestamps(
               maintenance.description,
