@@ -85,16 +85,23 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SERVER_PORT }}
           script: |
+            set -e
             cd ${{ vars.PROJECT_PATH }}
             export GITHUB_REPOSITORY_OWNER=${{ steps.repo_owner.outputs.owner }}
-            # Stop existing containers (keep volumes)
+            # Login to GitHub Container Registry
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
+            echo "Stopping existing containers..."
             docker compose -f docker-compose.prod.yml down --volumes=false || true
-            # Clean up any dangling images for this repo
-            docker image prune -f --filter "label=org.opencontainers.image.source=https://github.com/${{ github.repository_owner }}/naagostone"
-            # Pull latest images
+            echo "Pulling latest images..."
             docker compose -f docker-compose.prod.yml pull
-            # Start containers using the correct compose file
+            echo "Starting containers..."
             docker compose -f docker-compose.prod.yml up -d --remove-orphans
-            # Show status
-            echo "✅ Deployment complete!"
+            echo "Checking container status..."
             docker compose -f docker-compose.prod.yml ps
+            echo "Cleaning up old images..."
+            docker image prune -af --filter "until=24h" || true
+            # Show what image is actually running
+            echo "📦 Running image details:"
+            docker inspect naagostone-api --format='Image: {{.Config.Image}}' || true
+            docker inspect naagostone-api --format='Git commit: {{index .Config.Labels "org.opencontainers.image.revision"}}' || true
+            echo "✅ Deployment completed successfully!"
