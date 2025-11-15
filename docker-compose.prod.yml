@@ -3,7 +3,7 @@ services:
     container_name: naagostone-api
     image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/naagostone:latest
     networks:
-      - naagostone_network
+      - naagostone-network
     ports:
       - "3001:3001"
     restart: unless-stopped
@@ -11,4 +11,4 @@ services:
 networks:
   naagostone-network:
     driver: bridge
-    name: naagostone_network
+    name: naagostone-network
