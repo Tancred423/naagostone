@@ -4,7 +4,7 @@ import type { CssSelectorRegistry } from "../interface/CssSelectorRegistry.ts";
 import * as RegexTranslator from "regex-translator";
 import { Document, DOMParser, Element } from "deno-dom";
 import { StringFormatter } from "./StringFormatter.ts";
-import { HttpClient } from "./HttpClient.ts";
+import { lodestoneQueue } from "./LodestoneRequestQueue.ts";
 
 const domParser = new DOMParser();
 
@@ -20,7 +20,7 @@ export abstract class LodestoneParser {
   ): Promise<object> {
     const url = customUrl ? customUrl : this.getURL(ctx);
 
-    const response = await HttpClient.fetchWithTimeout(url);
+    const response = await lodestoneQueue.fetchWithTimeout(url);
     if (!response.ok) {
       throw new Error(response.status.toString());
     }

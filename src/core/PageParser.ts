@@ -5,6 +5,7 @@ import * as RegexTranslator from "regex-translator";
 import { Document, DOMParser, Element } from "deno-dom";
 import { StringFormatter } from "./StringFormatter.ts";
 import { HttpClient } from "./HttpClient.ts";
+import { lodestoneQueue } from "./LodestoneRequestQueue.ts";
 
 const domParser = new DOMParser();
 
@@ -16,7 +17,7 @@ export abstract class PageParser {
   public async parse(ctx: Context, columnsPrefix = ""): Promise<object> {
     const url = this.getURL(ctx);
 
-    const response = await HttpClient.fetchWithTimeout(url);
+    const response = await lodestoneQueue.fetchWithTimeout(url);
     if (!response.ok) {
       throw new Error(response.status.toString());
     }
@@ -30,12 +31,12 @@ export abstract class PageParser {
       mountsResponse,
       minionsResponse,
     ] = await Promise.allSettled([
-      HttpClient.fetchWithTimeout(`${url}/class_job`),
-      HttpClient.fetchWithTimeout(`${url}/achievement/?order=2`),
-      HttpClient.fetchWithTimeout(`${url}/mount`, {
+      lodestoneQueue.fetchWithTimeout(`${url}/class_job`),
+      lodestoneQueue.fetchWithTimeout(`${url}/achievement/?order=2`),
+      lodestoneQueue.fetchWithTimeout(`${url}/mount`, {
         userAgent: HttpClient.USER_AGENT_MOBILE,
       }),
-      HttpClient.fetchWithTimeout(`${url}/minion`, {
+      lodestoneQueue.fetchWithTimeout(`${url}/minion`, {
         userAgent: HttpClient.USER_AGENT_MOBILE,
       }),
     ]);
