@@ -57,6 +57,9 @@ jobs:
           cache-from: type=registry,ref=ghcr.io/${{ steps.repo_owner.outputs.owner }}/naagostone:buildcache
           cache-to: type=registry,ref=ghcr.io/${{ steps.repo_owner.outputs.owner }}/naagostone:buildcache,mode=max
 
+      - name: Check compose file
+        run: ls -l docker-compose.prod.yml
+
       - name: Copy docker-compose.prod.yml to server
         uses: appleboy/scp-action@master
         with:
