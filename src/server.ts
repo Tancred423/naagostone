@@ -21,9 +21,17 @@ import { StatusDetails } from "./parser/news/StatusDetails.ts";
 
 await load({ export: true });
 
+// Get log level from environment variable, default to INFO for production
+const logLevel = (Deno.env.get("LOG_LEVEL") || "INFO").toUpperCase();
+const validLogLevels = ["DEBUG", "INFO", "WARN", "ERROR"] as const;
+const effectiveLogLevel =
+  (validLogLevels.includes(logLevel as typeof validLogLevels[number]) ? logLevel : "INFO") as typeof validLogLevels[
+    number
+  ];
+
 log.setup({
   handlers: {
-    console: new log.ConsoleHandler("DEBUG", {
+    console: new log.ConsoleHandler(effectiveLogLevel, {
       formatter: (logRecord) => {
         const timestamp = new Date().toISOString();
         return `${timestamp} [${logRecord.levelName}] ${logRecord.msg}`;
@@ -32,11 +40,14 @@ log.setup({
   },
   loggers: {
     default: {
-      level: "DEBUG",
+      level: effectiveLogLevel,
       handlers: ["console"],
     },
   },
 });
+
+// Log the configured log level (using console.log since log might not be ready yet)
+console.log(`Log level set to: ${effectiveLogLevel} (set LOG_LEVEL environment variable to change)`);
 
 const markdownConverter = new HtmlToMarkdownConverter();
 const rateLimiter = new RateLimiter(60000, 100);
