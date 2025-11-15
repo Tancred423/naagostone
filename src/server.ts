@@ -1,6 +1,7 @@
 import { Context, Hono } from "hono";
 import { cors } from "hono/middleware";
 import * as log from "@std/log";
+import { load } from "@std/dotenv";
 import { HtmlToMarkdownConverter } from "./core/HtmlToMarkdownConverter.ts";
 import { Character } from "./parser/character/Character.ts";
 import { ItemLevel } from "./parser/character/ItemLevel.ts";
@@ -17,6 +18,8 @@ import { Updates } from "./parser/news/Updates.ts";
 import { UpdatesDetails } from "./parser/news/UpdatesDetails.ts";
 import { Status } from "./parser/news/Status.ts";
 import { StatusDetails } from "./parser/news/StatusDetails.ts";
+
+await load({ export: true });
 
 log.setup({
   handlers: {
@@ -56,17 +59,17 @@ app.use("/*", async (context: Context, next: () => Promise<void>) => {
   const start = Date.now();
   await next();
 
+  if (context.req.path === "/favicon.ico") {
+    return;
+  }
+
   const ms = Date.now() - start;
   const status = context.res.status;
   const isSuccess = status >= 200 && status < 300;
 
-  log.info('isSuccess', isSuccess, typeof isSuccess)
+  log.info(`isSuccess: ${isSuccess}, type: ${typeof isSuccess}`)
 
   if (!isSuccess) {
-    if (context.req.path === "/favicon.ico") {
-      return;
-    }
-
     let responseError: string | null = null;
     try {
       const response = context.res as Response;
