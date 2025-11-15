@@ -60,11 +60,9 @@ export class LodestoneRequestQueue {
       }
 
       const totalDelay = queueWaitTime + throttleDelay;
-      if (totalDelay > 0) {
-        log.debug(
-          `Lodestone request queue delay: ${totalDelay}ms (queued: ${queueWaitTime}ms, throttled: ${throttleDelay}ms) for ${request.url}`,
-        );
-      }
+      log.debug(
+        `Lodestone request queue delay: ${totalDelay}ms (queued: ${queueWaitTime}ms, throttled: ${throttleDelay}ms) for ${request.url}`,
+      );
 
       try {
         const response = await HttpClient.fetchWithTimeout(
