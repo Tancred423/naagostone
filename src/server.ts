@@ -8,7 +8,6 @@ import { ItemLevel } from "./parser/character/ItemLevel.ts";
 import { CharacterSearch } from "./parser/character/CharacterSearch.ts";
 import { RateLimiter } from "./middleware/RateLimiter.ts";
 import { InputValidator } from "./middleware/InputValidator.ts";
-import { ResponseCache } from "./middleware/ResponseCache.ts";
 import { Topics } from "./parser/news/Topics.ts";
 import { Notices } from "./parser/news/Notices.ts";
 import { NoticesDetails } from "./parser/news/NoticesDetails.ts";
@@ -53,7 +52,6 @@ console.log(`Log level set to: ${effectiveLogLevel} (set LOG_LEVEL environment v
 
 const markdownConverter = new HtmlToMarkdownConverter();
 const rateLimiter = new RateLimiter(60000, 100);
-const newsCache = new ResponseCache(300);
 const app = new Hono();
 
 app.use(
@@ -569,23 +567,7 @@ function parseNumericStrings(parsed: Record<string, unknown>) {
 }
 
 app.get("/lodestone/topics", async (context: Context) => {
-  const cacheKey = "lodestone:topics";
-  const cached = newsCache.get(cacheKey);
-
-  if (cached) {
-    context.header("X-Cache", "HIT");
-    context.header("Cache-Control", "public, max-age=300");
-    context.header("ETag", cached.etag);
-
-    if (context.req.header("If-None-Match") === cached.etag) {
-      return context.body(null, 304);
-    }
-
-    return context.json(cached.data);
-  }
-
-  context.header("X-Cache", "MISS");
-  context.header("Cache-Control", "public, max-age=300");
+  context.header("Cache-Control", "max-age=0");
 
   try {
     const topics = await topicsParser.parse(context, "", undefined, RequestPriority.LOW);
@@ -616,8 +598,6 @@ app.get("/lodestone/topics", async (context: Context) => {
     parsed.topics = resArray as unknown as Record<string, unknown>;
 
     const withMarkdown = markdownConverter.addMarkdownFields(parsed);
-    newsCache.set(cacheKey, withMarkdown);
-
     return context.json(withMarkdown);
   } catch (err: unknown) {
     const error = err as Error;
