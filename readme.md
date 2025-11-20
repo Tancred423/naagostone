@@ -10,12 +10,6 @@ lodestone news. I also include "markdown" versions of crawled texts that are rea
 docker build -t naagostone .
 ```
 
-### Running with Docker
-
-```bash
-docker run -d -p 3001:3001 --name naagostone-api naagostone
-```
-
 ### Running with Docker Compose
 
 The easiest way to run the service:

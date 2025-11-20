@@ -343,6 +343,68 @@ export class HtmlToMarkdownConverter {
       },
     );
 
+    // Pattern 2a: Date range "to" with explicit end date (multi timezone lines)
+    // Example: "Nov. 5, 2025 4:24 to Nov. 14, 2025 11:30 (GMT)  \nNov. 5, 2025 15:24 to Nov. 14, 2025 22:30 (AEDT)"
+    markdown = markdown.replace(
+      /(From\s+)?([A-Za-z]{3,9})\.?\s+(\d{1,2}),?\s+(\d{4})\s+(\d{1,2}):(\d{2})\s+to\s+([A-Za-z]{3,9})\.?\s+(\d{1,2}),?\s+(\d{4})\s+(\d{1,2}):(\d{2})\s+\(GMT\)(?:\s*\n(?:From\s+)?[A-Za-z]{3,9}\.?\s+\d{1,2},?\s+\d{4}\s+\d{1,2}:\d{2}\s+to\s+[A-Za-z]{3,9}\.?\s+\d{1,2},?\s+\d{4}\s+\d{1,2}:\d{2}\s+\([A-Z]{3,5}\)){1,}/gi,
+      (
+        match,
+        fromPrefix,
+        startMonth,
+        startDay,
+        startYear,
+        startHour,
+        startMinute,
+        endMonth,
+        endDay,
+        endYear,
+        endHour,
+        endMinute,
+      ) => {
+        const startTimestamp = this.parseDateTimeToTimestamp(startDay, startMonth, startYear, startHour, startMinute);
+        const endTimestamp = this.parseDateTimeToTimestamp(endDay, endMonth, endYear, endHour, endMinute);
+
+        if (startTimestamp && endTimestamp) {
+          const sameDay = this.isSameDay(startTimestamp, endTimestamp);
+          const endFormat = sameDay ? "t" : "f";
+          const prefix = fromPrefix ? "From " : "";
+          return `${prefix}<t:${startTimestamp}:f> to <t:${endTimestamp}:${endFormat}>`;
+        }
+        return match;
+      },
+    );
+
+    // Pattern 2b: Date range "to" with explicit end date (single line)
+    // Example: "Nov. 5, 2025 4:24 to Nov. 14, 2025 11:30 (GMT)"
+    markdown = markdown.replace(
+      /(From\s+)?([A-Za-z]{3,9})\.?\s+(\d{1,2}),?\s+(\d{4})\s+(\d{1,2}):(\d{2})\s+to\s+([A-Za-z]{3,9})\.?\s+(\d{1,2}),?\s+(\d{4})\s+(\d{1,2}):(\d{2})\s+\(GMT\)/gi,
+      (
+        match,
+        fromPrefix,
+        startMonth,
+        startDay,
+        startYear,
+        startHour,
+        startMinute,
+        endMonth,
+        endDay,
+        endYear,
+        endHour,
+        endMinute,
+      ) => {
+        const startTimestamp = this.parseDateTimeToTimestamp(startDay, startMonth, startYear, startHour, startMinute);
+        const endTimestamp = this.parseDateTimeToTimestamp(endDay, endMonth, endYear, endHour, endMinute);
+
+        if (startTimestamp && endTimestamp) {
+          const sameDay = this.isSameDay(startTimestamp, endTimestamp);
+          const endFormat = sameDay ? "t" : "f";
+          const prefix = fromPrefix ? "From " : "";
+          return `${prefix}<t:${startTimestamp}:f> to <t:${endTimestamp}:${endFormat}>`;
+        }
+        return match;
+      },
+    );
+
     // Pattern 3: Date with time range "to" (multi-line with AEDT)
     // Example: "Nov. 4, 2025 7:00 to 8:00 (GMT)  \nNov. 4, 2025 18:00 to 19:00 (AEDT)"
     markdown = markdown.replace(
